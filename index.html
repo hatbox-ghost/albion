@@ -964,6 +964,75 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
+
+
+/* iPhone performance layout fix: give ARP controls real fader space. */
+#octave-strip {
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+}
+
+#arp-bank {
+  align-items: stretch;
+}
+
+#arp-toggle {
+  flex: 0 0 54px;
+}
+
+#arp-mode {
+  flex: 0 0 74px;
+  width: 74px;
+}
+
+#arp-division {
+  flex: 0 0 54px;
+  width: 54px;
+}
+
+#arp-bank .arp-control {
+  flex: 1 1 0;
+  min-width: 78px;
+}
+
+#arp-bank .slip-control {
+  flex: 1.15 1 0;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #octave-strip {
+    grid-template-columns: minmax(0, 0.40fr) minmax(0, 0.60fr);
+    min-height: 36px;
+  }
+
+  #arp-toggle {
+    flex-basis: 48px;
+    width: 48px;
+    font-size: 7px;
+  }
+
+  #arp-mode {
+    flex-basis: 68px;
+    width: 68px;
+    font-size: 7px;
+  }
+
+  #arp-division {
+    flex-basis: 48px;
+    width: 48px;
+    font-size: 7px;
+  }
+
+  #arp-bank .arp-control {
+    min-width: 70px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  #arp-bank input[type="range"] {
+    height: 28px;
+  }
+}
+
 </style>
   </head>
   <body>
@@ -1974,10 +2043,14 @@ function updateArpReadout() {
   els.arpReadout.textContent = `${Math.round(arpTempo)} BPM · ${arpMode.toUpperCase()} · wet ${Math.round(timeLag * 100)} · slip ${Math.round(arpSlip * 100)}`;
 }
 
-async function startVoice(key, ratio, octave, pan, value) {
+function startVoice(key, ratio, octave, pan, value) {
   if (voices[key]) return;
-  await resumeAudio();
-  if (voices[key]) return;
+  // Do not await here: on iOS, waiting for async setup can miss the original
+  // fader gesture. setupAudio creates the AudioContext and bus nodes
+  // synchronously before the worklet finishes, so voices can be connected now.
+  setupAudio();
+  resumeAudio();
+  if (!audio || !filterBus || voices[key]) return;
   const baseFreq = noteFreq(ratio, octave);
   const panner = audio.createStereoPanner();
   const amp = audio.createGain();
@@ -2051,6 +2124,7 @@ function setVoiceGain(key, value) {
 function releaseAll(fadeSeconds = 0.35) {
   Object.keys(voices).forEach((key) => stopVoice(key, fadeSeconds));
   releaseArps(fadeSeconds);
+  stopSolo(fadeSeconds <= 0.25);
   Object.keys(faderVals).forEach((key) => delete faderVals[key]);
   document.querySelectorAll(".channel").forEach((channel) => {
     channel.classList.remove("active");
@@ -2132,9 +2206,11 @@ function draggedSoloTargetFromPointer(x) {
   return { index, freq };
 }
 
-async function ensureSoloVoice(freq) {
+function ensureSoloVoice(freq) {
   if (soloVoice) return soloVoice;
-  await resumeAudio();
+  setupAudio();
+  resumeAudio();
+  if (!audio || !filterBus) return null;
   const amp = audio.createGain();
   const waveGain = audio.createGain();
   const panner = audio.createStereoPanner();
@@ -2154,8 +2230,9 @@ async function ensureSoloVoice(freq) {
   return soloVoice;
 }
 
-async function startSoloTarget(target) {
-  const voice = await ensureSoloVoice(target.freq);
+function startSoloTarget(target) {
+  const voice = ensureSoloVoice(target.freq);
+  if (!voice || !audio) return;
   const now = audio.currentTime;
   if (voice.releaseTimer) clearTimeout(voice.releaseTimer);
   voice.osc.frequency.cancelScheduledValues(now);
@@ -2650,6 +2727,18 @@ function makeSoloKey(note, index) {
   const key = document.createElement("div");
   key.className = `solo-key harmony-${harmonyClass(note, index)}${index === currentCenterIndex ? " harmony-center" : ""}${soloActiveIndex === index ? " active" : ""}`;
   key.innerHTML = `<div class="solo-note">${note.name}</div><div class="solo-ratio">${displayRatio(note)}</div>`;
+  // In Hold mode, tapping the currently held key toggles it off so it never traps
+  // a solo note on iPhone if pointerup/cancel is swallowed by Safari.
+  key.addEventListener("pointerdown", (event) => {
+    if (soloHold && soloActiveIndex === index) {
+      event.preventDefault();
+      event.stopPropagation();
+      soloPointerDown = false;
+      soloPointerId = null;
+      soloAnchor = null;
+      stopSolo(true);
+    }
+  });
   return key;
 }
 
