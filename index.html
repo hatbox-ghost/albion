@@ -1364,7 +1364,7 @@ const panLabels = pans.map((p) => p === 0 ? "•" : p === 0.4 ? "·▶" : p === 
 const baseC3 = 261.63;
 const thresholdOn = 0.12;
 const thresholdOff = 0.05;
-const harmonics = 96;
+const harmonics = 24;
 
 let audio;
 let master;
@@ -1466,7 +1466,7 @@ let slipRescheduleTimer = null;
 const voices = {};
 const faderVals = {};
 const activeArpVoices = new Set();
-const maxActiveArpVoices = 14;
+const maxActiveArpVoices = 6;
 const waveCache = new Map();
 
 const els = {
@@ -1737,7 +1737,7 @@ async function setupAudio() {
   if (setupAudioPromise) return setupAudioPromise;
 
   setupAudioPromise = (async () => {
-    audio = new (window.AudioContext || window.webkitAudioContext)();
+    audio = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: "playback" });
     master = audio.createGain();
     finalLimiter = audio.createDynamicsCompressor();
     limiterTrim = audio.createGain();
@@ -1879,7 +1879,7 @@ function mapArpTempo(v) {
   const clamped = Math.max(0, Math.min(1, v));
   const min = 60;
   const mid = 220;
-  const max = 720;
+  const max = 420;
   if (clamped < 0.5) return min * Math.pow(mid / min, clamped / 0.5);
   return mid * Math.pow(max / mid, (clamped - 0.5) / 0.5);
 }
@@ -2300,10 +2300,10 @@ function activeArpNotes() {
 
 function mapArpEnvelope(amount, tight, bpm) {
   const step = 60 / Math.max(1, bpm);
-  const attack = 0.004 + (1 - tight) * 0.035;
-  const hold = step * (0.48 + (1 - tight) * 0.34);
-  const release = 0.12 + (1 - tight) * 0.52;
-  return { attack, hold, release, decayTau: release / 3 };
+  const attack = 0.018 + (1 - tight) * 0.035;
+  const hold = Math.min(step * 0.72, step * (0.38 + (1 - tight) * 0.28));
+  const release = 0.08 + (1 - tight) * 0.42;
+  return { attack, hold, release, decayTau: Math.max(0.045, release / 3) };
 }
 
 function triggerArpExciteEnv(arpLp, arpDrive) {
@@ -2312,9 +2312,9 @@ function triggerArpExciteEnv(arpLp, arpDrive) {
   const tight = Math.max(0, Math.min(1, arpTight));
   const baseFc = Math.max(35, currentFilterFc || 55);
   const baseQ = 0.55 + res * 10.5;
-  const atk = 0.0012 + (1 - tight) * 0.018;
-  const dec = 0.03 + (1 - tight) * 0.22;
-  const peakFc = Math.min(19500, baseFc + Math.pow(amt, 1.05) * (18500 + res * 5200) * (1 + res * 0.85));
+  const atk = 0.012 + (1 - tight) * 0.026;
+  const dec = 0.055 + (1 - tight) * 0.24;
+  const peakFc = Math.min(12500, baseFc + Math.pow(amt, 1.05) * (9000 + res * 3200) * (1 + res * 0.45));
   arpLp.frequency.setValueAtTime(baseFc, now);
   arpLp.Q.setValueAtTime(baseQ, now);
   arpLp.frequency.linearRampToValueAtTime(peakFc, now + atk);
@@ -2322,7 +2322,7 @@ function triggerArpExciteEnv(arpLp, arpDrive) {
   arpLp.Q.linearRampToValueAtTime(Math.min(20, baseQ + amt * (0.5 + res * 7.2)), now + atk);
   arpLp.Q.setTargetAtTime(baseQ, now + atk, dec * 1.15);
   arpDrive.gain.setValueAtTime(0.0001, now);
-  arpDrive.gain.linearRampToValueAtTime(0.18 + amt * (9.4 + res * 6.4), now + atk);
+  arpDrive.gain.linearRampToValueAtTime(0.18 + amt * (4.2 + res * 2.4), now + atk);
   arpDrive.gain.setTargetAtTime(1, now + atk, dec);
 }
 
@@ -2424,10 +2424,12 @@ async function triggerArpVoice(item) {
   const arpFaderLevel = faderLevel <= 0 ? 0 : Math.min(0.9, 0.06 + faderLevel * 0.84);
   const layerScale = item.octaveLayer === 2 ? 0.28 : item.octaveLayer === 1 ? 0.39 : 0.60;
   const peak = getGain(arpFaderLevel) * layerScale * arpVolume;
+  const safeAttack = Math.max(0.018, env.attack);
+  amp.gain.cancelScheduledValues(now);
   amp.gain.setValueAtTime(0, now);
-  amp.gain.linearRampToValueAtTime(peak, now + env.attack);
-  amp.gain.setValueAtTime(peak, now + env.attack + env.hold);
-  amp.gain.setTargetAtTime(0, now + env.attack + env.hold, env.decayTau);
+  amp.gain.linearRampToValueAtTime(peak, now + safeAttack);
+  amp.gain.setValueAtTime(peak, now + safeAttack + env.hold);
+  amp.gain.setTargetAtTime(0, now + safeAttack + env.hold, env.decayTau);
   const channel = item.octaveUp ? null : document.querySelector(`.channel[data-key="${item.key}"]`);
   if (channel) {
     channel.classList.add("arp-hit");
@@ -2472,7 +2474,7 @@ function scheduleArpLeft() {
   triggerArpSide("left");
   const baseMs = (60000 / Math.max(1, arpTempo)) * arpDivision;
   const phaseAmount = 0.015 + arpSlip * 0.18;
-  arpTimerLeft = setTimeout(scheduleArpLeft, Math.max(24, baseMs * (1 + phaseAmount)));
+  arpTimerLeft = setTimeout(scheduleArpLeft, Math.max(90, baseMs * (1 + phaseAmount)));
 }
 
 function scheduleArpRight() {
@@ -2480,7 +2482,7 @@ function scheduleArpRight() {
   triggerArpSide("right");
   const baseMs = (60000 / Math.max(1, arpTempo)) * arpDivision;
   const phaseAmount = 0.015 + arpSlip * 0.18;
-  arpTimerRight = setTimeout(scheduleArpRight, Math.max(24, baseMs * (1 - phaseAmount)));
+  arpTimerRight = setTimeout(scheduleArpRight, Math.max(90, baseMs * (1 - phaseAmount)));
 }
 
 function scheduleArpMono() {
@@ -2492,7 +2494,7 @@ function scheduleArpMono() {
     arpStep += 1;
   }
   const baseMs = (60000 / Math.max(1, arpTempo)) * arpDivision;
-  arpTimer = setTimeout(scheduleArpMono, Math.max(24, baseMs));
+  arpTimer = setTimeout(scheduleArpMono, Math.max(90, baseMs));
 }
 
 function currentArpSchedulerMode() {
@@ -2972,6 +2974,25 @@ document.querySelectorAll("#controls input").forEach((input) => {
       updateFilter();
     }
   });
+});
+
+
+// Browsers throttle setTimeout hard when the tab/app is hidden.
+// The arp uses JS timers, so letting it run hidden causes slowdowns and then a burst/crackle
+// when the page returns. Pause the arp clock while hidden and restart it cleanly on return.
+document.addEventListener("visibilitychange", () => {
+  if (!arpOn) return;
+  if (document.hidden) {
+    clearSlipReschedule();
+    clearArpTimer();
+    releaseArps(0.08);
+  } else {
+    arpStepLeft = arpStep;
+    arpStepRight = arpStep;
+    clearArpTimer();
+    resetFilterLfo();
+    scheduleArp();
+  }
 });
 
 els.masterToggle.addEventListener("click", () => openMaster(!els.masterModal.classList.contains("open")));
