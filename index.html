@@ -1,5 +1,3 @@
-use clipboard and save it
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -1366,7 +1364,7 @@ const panLabels = pans.map((p) => p === 0 ? "•" : p === 0.4 ? "·▶" : p === 
 const baseC3 = 261.63;
 const thresholdOn = 0.12;
 const thresholdOff = 0.05;
-const harmonics = 48;
+const harmonics = 96;
 
 let audio;
 let master;
@@ -1441,7 +1439,7 @@ const delayDivisionStops = [
   { label: "1/2", value: 2 },
   { label: "1 bar", value: 4 }
 ];
-let arpVolume = 0.82;
+let arpVolume = 0.70;
 let adventureAmount = 0.35;
 let adventureCycleSeconds = mapAdventureRate(0.5);
 let adventureOn = false;
@@ -1451,7 +1449,7 @@ let adventureApplying = false;
 let adventureLastUpdate = 0;
 const adventureUpdateMs = 55;
 const adventureSlew = {};
-const adventureControlledIds = ["cutoff", "res", "mix", "drift", "dream-house", "lfo-rate", "lfo-depth", "lfo-shape", "arp-time-lag", "arp-lag-spread", "delay-division", "arp-lag-decay", "arp-slip", "arp-env", "arp-tight"];
+const adventureControlledIds = ["cutoff", "res", "mix", "drift", "dream-house", "lfo-rate", "lfo-depth", "lfo-shape", "arp-time-lag", "arp-lag-spread", "delay-division", "arp-lag-decay", "arp-env", "arp-tight", "arp-tempo"];
 const adventureHeldIds = new Set();
 const adventureBase = {};
 let softReleaseSeconds = 10;
@@ -1468,6 +1466,7 @@ let slipRescheduleTimer = null;
 const voices = {};
 const faderVals = {};
 const activeArpVoices = new Set();
+const maxActiveArpVoices = 14;
 const waveCache = new Map();
 
 const els = {
@@ -1573,8 +1572,8 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
     // ARP 2600-ish 4-pole low-pass: cascaded nonlinear one-poles with global feedback.
     // This is an instrument-safe digital approximation, not a circuit-exact service-manual clone.
     const resNorm = Math.max(0, Math.min(1, (q - 0.6) / 4.4));
-    const resonance = resNorm * 2.25;
-    const resonanceComp = 0.88 + resNorm * 0.42;
+    const resonance = resNorm * 2.55;
+    const resonanceComp = 0.94 + resNorm * 0.58;
     const driveAmt = 1 + drive * 2.2;
     const driveNorm = Math.tanh(driveAmt);
 
@@ -1675,8 +1674,8 @@ function createScriptTptSvfNode(context) {
     const maxCutoff = Math.min(15000, sr * 0.34);
     const q = Math.max(0.5, Math.min(5.0, params.q));
     const resNorm = Math.max(0, Math.min(1, (q - 0.6) / 4.4));
-    const resonance = resNorm * 2.25;
-    const resonanceComp = 0.88 + resNorm * 0.42;
+    const resonance = resNorm * 2.55;
+    const resonanceComp = 0.94 + resNorm * 0.58;
     const drive = Math.max(0, Math.min(1, params.drive));
     const driveAmt = 1 + drive * 2.2;
     const driveNorm = Math.tanh(driveAmt);
@@ -1765,19 +1764,19 @@ async function setupAudio() {
     wowGainB = audio.createGain();
     flutterGain = audio.createGain();
 
-    master.gain.value = 0.55;
+    master.gain.value = 0.65;
     // Final safety limiter: keeps stacked drones, feedback, and split arps from running away.
     // It is intentionally conservative rather than a loudness/maximizer stage.
-    finalLimiter.threshold.value = -12;
-    finalLimiter.knee.value = 18;
-    finalLimiter.ratio.value = 10;
-    finalLimiter.attack.value = 0.012;
-    finalLimiter.release.value = 0.28;
-    limiterTrim.gain.value = 0.72;
+    finalLimiter.threshold.value = -8;
+    finalLimiter.knee.value = 0;
+    finalLimiter.ratio.value = 20;
+    finalLimiter.attack.value = 0.003;
+    finalLimiter.release.value = 0.18;
+    limiterTrim.gain.value = 0.9;
     filterBus.gain.value = 1;
     filterTrim.gain.value = 1;
     shaper.curve = saturationCurve(1.35);
-    shaper.oversample = "none";
+    shaper.oversample = "2x";
     svf = await createTptSvfNode(audio);
     filterBus.connect(svf);
     svf.connect(filterTrim);
@@ -1797,8 +1796,8 @@ async function setupAudio() {
     delayToneB.frequency.value = 1350;
     delayShapeA.curve = saturationCurve(1.75);
     delayShapeB.curve = saturationCurve(2.05);
-    delayShapeA.oversample = "none";
-    delayShapeB.oversample = "none";
+    delayShapeA.oversample = "2x";
+    delayShapeB.oversample = "2x";
     delayDry.connect(filterTrim);
     delaySend.connect(delayA);
     delaySend.connect(delayB);
@@ -2016,7 +2015,7 @@ function updateDelay() {
   // Feedback = regeneration length.
   // Slip = split arp clocks: left slows down while right speeds up, creating phase patterns.
   const spread = Math.pow(lagSpread, 1.25);
-  const decay = Math.max(0, Math.min(0.72, lagDecay));
+  const decay = Math.max(0, Math.min(0.88, lagDecay));
   const lagAmount = Math.max(0, Math.min(1, timeLag));
   const panAmount = lagAmount * 0.78;
 
@@ -2024,11 +2023,11 @@ function updateDelay() {
   const rightTime = seconds * (1.0 + spread * (0.08 + lagAmount * 0.18));
   delayA.delayTime.setTargetAtTime(Math.max(0.035, Math.min(4.8, leftTime)), now, 0.16);
   delayB.delayTime.setTargetAtTime(Math.max(0.035, Math.min(4.8, rightTime)), now, 0.20);
-  delayFbA.gain.setTargetAtTime(decay * 0.62, now, 0.14);
-  delayFbB.gain.setTargetAtTime(decay * 0.56, now, 0.14);
-  delaySend.gain.setTargetAtTime(0.14 + lagAmount * 0.46, now, 0.09);
+  delayFbA.gain.setTargetAtTime(decay * 0.76, now, 0.1);
+  delayFbB.gain.setTargetAtTime(decay * 0.70, now, 0.1);
+  delaySend.gain.setTargetAtTime(0.20 + lagAmount * 0.62, now, 0.06);
   delayDry.gain.setTargetAtTime(1, now, 0.03);
-  delayWet.gain.setTargetAtTime(lagAmount * 0.68, now, 0.08);
+  delayWet.gain.setTargetAtTime(lagAmount * 0.86, now, 0.05);
   if (delayPanA && delayPanB) {
     delayPanA.pan.setTargetAtTime(-panAmount, now, 0.12);
     delayPanB.pan.setTargetAtTime(panAmount, now, 0.12);
@@ -2358,29 +2357,6 @@ function cleanupArpVoice(arpVoice) {
   } catch {}
 }
 
-function limitActiveArpVoices() {
-  // iPhone + Bluetooth can crackle when split/3-octave arp modes leave too many
-  // short voices ringing at once. Fade the oldest arp grains first instead of
-  // letting the voice count spike.
-  const maxVoices = 22;
-  if (!audio || activeArpVoices.size <= maxVoices) return;
-  const now = audio.currentTime;
-  while (activeArpVoices.size > maxVoices) {
-    const oldest = activeArpVoices.values().next().value;
-    if (!oldest) break;
-    try {
-      oldest.amp.gain.cancelScheduledValues(now);
-      oldest.amp.gain.setValueAtTime(oldest.amp.gain.value, now);
-      oldest.amp.gain.linearRampToValueAtTime(0, now + 0.045);
-      if (oldest.cleanupTimer) clearTimeout(oldest.cleanupTimer);
-      oldest.cleanupTimer = setTimeout(() => cleanupArpVoice(oldest), 70);
-    } catch {
-      cleanupArpVoice(oldest);
-    }
-    activeArpVoices.delete(oldest);
-  }
-}
-
 function releaseArps(fadeSeconds = 0.35) {
   // Fade only the arp voices that are already ringing.
   // Do not turn ARP off or clear its clock: if ARP is enabled, raising new faders
@@ -2404,6 +2380,9 @@ function releaseArps(fadeSeconds = 0.35) {
 
 async function triggerArpVoice(item) {
   await resumeAudio();
+  while (activeArpVoices.size >= maxActiveArpVoices) {
+    cleanupArpVoice(activeArpVoices.values().next().value);
+  }
   const now = audio.currentTime;
   const env = mapArpEnvelope(arpEnv, arpTight, arpTempo);
   const arpDrive = audio.createGain();
@@ -2438,13 +2417,12 @@ async function triggerArpVoice(item) {
   osc.start(now);
   const arpVoice = { osc, waveGain, amp, panner, arpDrive, arpShape, arpLp, cleanupTimer: null, cleaned: false };
   activeArpVoices.add(arpVoice);
-  limitActiveArpVoices();
   triggerArpExciteEnv(arpLp, arpDrive);
   // Keep arp loudness related to the drone fader, but less aggressively.
   // This preserves the musical link without making high faders make the arp jump out too much.
   const faderLevel = Math.max(0, Math.min(1, item.value ?? 0));
   const arpFaderLevel = faderLevel <= 0 ? 0 : Math.min(0.9, 0.06 + faderLevel * 0.84);
-  const layerScale = item.octaveLayer === 2 ? 0.22 : item.octaveLayer === 1 ? 0.32 : 0.50;
+  const layerScale = item.octaveLayer === 2 ? 0.28 : item.octaveLayer === 1 ? 0.39 : 0.60;
   const peak = getGain(arpFaderLevel) * layerScale * arpVolume;
   amp.gain.setValueAtTime(0, now);
   amp.gain.linearRampToValueAtTime(peak, now + env.attack);
@@ -2917,7 +2895,9 @@ function updateAdventure(nowMs) {
   // Each control uses a related but different cycle factor so the combined system does not obviously loop.
   // If you grab a control while Auto Perform is running, that control is temporarily ignored,
   // then the released value becomes the new center for the auto movement.
-  // Tempo is intentionally not automated; it stays as the user sets it.
+  // Tempo is automated only while Auto Perform is engaged. Manual tempo stays steady otherwise.
+  setRangeValue("arp-tempo", adventureTarget(adventureBaseValue("arp-tempo", 0.5), amount * 0.18, autoPhase(elapsed, 3.35, 3.1), 0.10, 0.92), 0.0025);
+
   setRangeValue("cutoff", adventureTarget(adventureBaseValue("cutoff", 1), amount * 0.78, autoPhase(elapsed, 1.00, 0.2), 0.06, 1), 0.010);
   setRangeValue("res", adventureTarget(adventureBaseValue("res", 0), amount * 0.30, autoPhase(elapsed, 1.35, 1.8), 0, 0.58), 0.006);
 
@@ -2935,8 +2915,7 @@ function updateAdventure(nowMs) {
   setRangeValue("delay-division", adventureTarget(adventureBaseValue("delay-division", 0.5), amount * 0.42, autoPhase(elapsed, 2.75, 2.4), 0.04, 0.96), 0.005);
   setRangeValue("arp-lag-decay", adventureTarget(adventureBaseValue("arp-lag-decay", 0.34), amount * 0.34, autoPhase(elapsed, 2.60, 4.8), 0, 0.64), 0.0045);
 
-  // Arp parameters now participate in the long-form process, but stay capped so they don't become chaotic.
-  setRangeValue("arp-slip", adventureUnipolarTarget(adventureBaseValue("arp-slip", 0), amount * 0.42, autoPhase(elapsed, 3.05, 3.2), 0, 0.52), 0.0032);
+  // Arp shape parameters can drift. Slip stays manual; tempo is the only arp-speed parameter Auto Perform moves.
   setRangeValue("arp-env", adventureTarget(adventureBaseValue("arp-env", 0.72), amount * 0.24, autoPhase(elapsed, 2.05, 5.7), 0.24, 0.90), 0.0035);
   setRangeValue("arp-tight", adventureTarget(adventureBaseValue("arp-tight", 0.55), amount * 0.24, autoPhase(elapsed, 2.95, 0.7), 0.18, 0.88), 0.0035);
 
