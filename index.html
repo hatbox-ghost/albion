@@ -828,6 +828,8 @@ input[type="range"]::-moz-range-thumb {
   align-items: flex-start;
   justify-content: center;
   padding: 42px 12px 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: rgba(0, 0, 0, 0.58);
 }
 
@@ -837,6 +839,9 @@ input[type="range"]::-moz-range-thumb {
 
 .master-sheet {
   width: min(560px, 100%);
+  max-height: calc(100dvh - 28px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #242018;
   border-radius: 6px;
   background: #09090b;
@@ -1401,6 +1406,36 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
+@media (orientation: landscape) and (max-height: 520px) {
+  .master-modal {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .master-sheet {
+    max-height: calc(100dvh - 16px);
+  }
+
+  .master-control {
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .master-control select {
+    height: 26px;
+    font-size: 9px;
+  }
+
+  .master-head {
+    padding: 6px 9px;
+  }
+
+  .master-note {
+    padding: 7px 9px 9px;
+    font-size: 8px;
+  }
+}
+
 </style>
   </head>
   <body>
@@ -1423,14 +1458,14 @@ input[type="range"]::-moz-range-thumb {
           <span>Feedback</span>
           <input type="range" id="arp-lag-decay" min="0" max="0.88" step="0.001" value="0.34">
         </label>
-        <button id="arp-readout" class="top-bpm" type="button" aria-expanded="false">200 BPM</button>
+        <button id="arp-readout" class="top-bpm" type="button" aria-expanded="false">100 BPM</button>
       </div>
     </div>
 
     <div id="tempo-popover" class="tempo-popover" aria-hidden="true">
-      <div class="tempo-popover-head"><span id="tempo-popover-readout">200 BPM</span><button id="tempo-close" type="button">×</button></div>
+      <div class="tempo-popover-head"><span id="tempo-popover-readout">100 BPM</span><button id="tempo-close" type="button">×</button></div>
       <div class="tempo-popover-body">
-        <input type="range" id="tempo-popover-slider" min="0" max="1" step="0.001" value="1">
+        <input type="range" id="tempo-popover-slider" min="0" max="1" step="0.001" value="0.634632">
         <button id="tap-tempo" type="button">TAP</button>
       </div>
     </div>
@@ -1451,8 +1486,8 @@ input[type="range"]::-moz-range-thumb {
             <select id="center-select"></select>
           </label>
           <label class="master-control master-range-readout">
-            <span>Tempo <b id="tempo-readout">200 BPM</b></span>
-            <input type="range" id="arp-tempo" min="0" max="1" step="0.001" value="1">
+            <span>Tempo <b id="tempo-readout">100 BPM</b></span>
+            <input type="range" id="arp-tempo" min="0" max="1" step="0.001" value="0.634632">
           </label>
           <label class="master-control">
             <span>Arp Vol</span>
@@ -1471,16 +1506,8 @@ input[type="range"]::-moz-range-thumb {
             <input type="range" id="adventure-amount" min="0" max="1" step="0.001" value="0.35">
           </label>
           <label class="master-control">
-            <span>Detune Amt</span>
-            <input type="range" id="detune-max" min="0" max="2" step="0.001" value="1">
-          </label>
-          <label class="master-control">
             <span>Detune Rate</span>
             <input type="range" id="detune-rate" min="0.15" max="4" step="0.001" value="1">
-          </label>
-          <label class="master-control">
-            <span>Pan Amt</span>
-            <input type="range" id="wander-max" min="0" max="2" step="0.001" value="1">
           </label>
           <label class="master-control">
             <span>Pan Rate</span>
@@ -1802,8 +1829,8 @@ let res = 0;
 let oscMix = 0;
 let driftControl = 0;
 let dreamHouseControl = 0;
-let detuneMax = 1;
-let wanderMax = 1;
+let detuneMax = 2;
+let wanderMax = 2;
 let detuneRate = 1;
 let wanderRate = 1;
 let mainVolume = 0.55;
@@ -1826,7 +1853,7 @@ let soloPointerDown = false;
 let soloPointerId = null;
 let soloAnchor = null;
 let arpOn = false;
-let arpTempo = mapArpTempo(1);
+let arpTempo = mapArpTempo(0.634632);
 let lfoRate = mapFilterRate(lfoRateControl);
 let arpEnv = 0.72;
 let arpTight = 0.55;
@@ -1837,6 +1864,11 @@ let arpSlip = 0;
 let arpDivision = 1;
 let delayDivisionControl = 0.4;
 let delayDivision = 1;
+let currentDelayATime = null;
+let currentDelayBTime = null;
+let pendingDelayATime = null;
+let pendingDelayBTime = null;
+let delayTimeSwitchTimer = null;
 const delayDivisionStops = [
   { label: "1 bar", value: 4 },
   { label: "1/2", value: 2 },
@@ -1918,9 +1950,7 @@ const els = {
   adventureRate: document.querySelector("#adventure-rate"),
   adventureRateReadout: document.querySelector("#adventure-rate-readout"),
   adventureToggle: document.querySelector("#adventure-toggle"),
-  detuneMax: document.querySelector("#detune-max"),
   detuneRate: document.querySelector("#detune-rate"),
-  wanderMax: document.querySelector("#wander-max"),
   wanderRate: document.querySelector("#wander-rate"),
   softReleaseTime: document.querySelector("#soft-release-time"),
   softReleaseTimeReadout: document.querySelector("#soft-release-time-readout"),
@@ -2455,30 +2485,95 @@ function updateDelayValueReadout() {
   els.delayValueReadout.textContent = `wet ${Math.round(timeLag * 100)} · lag ${Math.round(lagSpread * 100)} · div ${delayDivisionLabel(delayDivisionControl)} · fb ${Math.round(lagDecay * 100)} · slip ${Math.round(arpSlip * 100)}`;
 }
 
+function scheduleDelayTimeSwitch(leftTime, rightTime, wetTarget, fbATarget, fbBTarget) {
+  if (!audio || !delayA || !delayB) return;
+  const targetA = Math.max(0.035, Math.min(4.8, leftTime));
+  const targetB = Math.max(0.035, Math.min(4.8, rightTime));
+
+  if (currentDelayATime === null || currentDelayBTime === null) {
+    const now = audio.currentTime;
+    currentDelayATime = targetA;
+    currentDelayBTime = targetB;
+    delayA.delayTime.setValueAtTime(targetA, now);
+    delayB.delayTime.setValueAtTime(targetB, now);
+    return;
+  }
+
+  const diffA = Math.abs(targetA - currentDelayATime);
+  const diffB = Math.abs(targetB - currentDelayBTime);
+  const bigMove = Math.max(diffA, diffB) > 0.012;
+
+  pendingDelayATime = targetA;
+  pendingDelayBTime = targetB;
+
+  if (!bigMove) {
+    const now = audio.currentTime;
+    currentDelayATime = targetA;
+    currentDelayBTime = targetB;
+    delayA.delayTime.setTargetAtTime(targetA, now, 0.42);
+    delayB.delayTime.setTargetAtTime(targetB, now, 0.42);
+    return;
+  }
+
+  // Avoid the tape-delay pitch dive when changing delay divisions.
+  // Instead, wait until the control settles, briefly duck the echo return,
+  // switch the delay time while hidden, then fade the return back in.
+  if (delayTimeSwitchTimer) clearTimeout(delayTimeSwitchTimer);
+  delayTimeSwitchTimer = setTimeout(() => {
+    if (!audio || !delayA || !delayB) return;
+    const now = audio.currentTime;
+    const switchAt = now + 0.055;
+    const a = pendingDelayATime;
+    const b = pendingDelayBTime;
+
+    delayWet.gain.cancelScheduledValues(now);
+    delayFbA.gain.cancelScheduledValues(now);
+    delayFbB.gain.cancelScheduledValues(now);
+    delayWet.gain.setTargetAtTime(0.0001, now, 0.012);
+    delayFbA.gain.setTargetAtTime(0.0001, now, 0.012);
+    delayFbB.gain.setTargetAtTime(0.0001, now, 0.012);
+
+    delayA.delayTime.cancelScheduledValues(now);
+    delayB.delayTime.cancelScheduledValues(now);
+    delayA.delayTime.setValueAtTime(a, switchAt);
+    delayB.delayTime.setValueAtTime(b, switchAt);
+
+    delayWet.gain.setTargetAtTime(wetTarget, switchAt + 0.025, 0.16);
+    delayFbA.gain.setTargetAtTime(fbATarget, switchAt + 0.025, 0.18);
+    delayFbB.gain.setTargetAtTime(fbBTarget, switchAt + 0.025, 0.18);
+    currentDelayATime = a;
+    currentDelayBTime = b;
+    delayTimeSwitchTimer = null;
+  }, 95);
+}
+
 function updateDelay() {
   if (!audio || !delayA || !delayB) return;
   const now = audio.currentTime;
   const seconds = (60 / Math.max(1, arpTempo)) * delayDivision;
 
-  // Time Lag is now a stereo tape separation, not arp timing instability.
-  // Dry/Wet = how much of the two tape returns are heard.
-  // Time Lag = how far the right tape lags behind the left tape.
-  // Feedback = regeneration length.
-  // Slip = split arp clocks: left slows down while right speeds up, creating phase patterns.
+  // Time Lag is now a stereo separation / offset, not tape-speed retuning.
+  // Delay-time changes are hidden behind a tiny echo-return crossfade so
+  // changing divisions feels smooth without the springy pitch-dive sound.
   const spread = Math.pow(lagSpread, 1.25);
   const decay = Math.max(0, Math.min(0.72, lagDecay));
   const lagAmount = Math.max(0, Math.min(1, timeLag));
   const panAmount = lagAmount * 0.78;
+  const wetTarget = lagAmount * 0.68;
+  const fbATarget = decay * 0.62;
+  const fbBTarget = decay * 0.56;
 
   const leftTime = seconds * (1.0 + spread * 0.025);
   const rightTime = seconds * (1.0 + spread * (0.08 + lagAmount * 0.18));
-  delayA.delayTime.setTargetAtTime(Math.max(0.035, Math.min(4.8, leftTime)), now, 0.16);
-  delayB.delayTime.setTargetAtTime(Math.max(0.035, Math.min(4.8, rightTime)), now, 0.20);
-  delayFbA.gain.setTargetAtTime(decay * 0.62, now, 0.14);
-  delayFbB.gain.setTargetAtTime(decay * 0.56, now, 0.14);
+  scheduleDelayTimeSwitch(leftTime, rightTime, wetTarget, fbATarget, fbBTarget);
+
+  if (!delayTimeSwitchTimer) {
+    delayFbA.gain.setTargetAtTime(fbATarget, now, 0.18);
+    delayFbB.gain.setTargetAtTime(fbBTarget, now, 0.18);
+    delayWet.gain.setTargetAtTime(wetTarget, now, 0.12);
+  }
   delaySend.gain.setTargetAtTime(0.14 + lagAmount * 0.46, now, 0.09);
   delayDry.gain.setTargetAtTime(1, now, 0.03);
-  delayWet.gain.setTargetAtTime(lagAmount * 0.68, now, 0.08);
   if (delayPanA && delayPanB) {
     delayPanA.pan.setTargetAtTime(-panAmount, now, 0.12);
     delayPanB.pan.setTargetAtTime(panAmount, now, 0.12);
@@ -3550,16 +3645,8 @@ els.adventureRate.addEventListener("input", () => {
   updateAdventureRateReadout();
 });
 els.adventureToggle.addEventListener("click", () => setAdventureOn(!adventureOn));
-els.detuneMax.addEventListener("input", () => {
-  detuneMax = Number(els.detuneMax.value) || 0;
-  setMotionCaps();
-});
 els.detuneRate.addEventListener("input", () => {
   detuneRate = Number(els.detuneRate.value) || 1;
-});
-els.wanderMax.addEventListener("input", () => {
-  wanderMax = Number(els.wanderMax.value) || 0;
-  setMotionCaps();
 });
 els.wanderRate.addEventListener("input", () => {
   wanderRate = Number(els.wanderRate.value) || 1;
