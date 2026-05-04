@@ -530,6 +530,59 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
+.channel.seq-hit::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 42%, transparent);
+  content: "";
+}
+
+.channel.seq-hit .fader-track {
+  background: #2b2118;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+#filter-seq-active-only.active {
+  background: var(--panel-active);
+  color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+#fader-mode-toggle {
+  flex: 0 0 82px;
+  border: 0;
+  border-right: 1px solid #171717;
+  background: #08080a;
+  color: #68645a;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+#fader-mode-toggle.active {
+  background: var(--panel-active);
+  color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+body.filter-seq-editing .channel .vol-readout::before {
+  content: "SEQ ";
+  color: #5f5a50;
+}
+
+body.filter-seq-editing .channel .threshold-line {
+  opacity: 0.26;
+}
+
+body.filter-seq-editing #mixer {
+  overflow-x: hidden;
+}
+
 #solo-panel {
   display: block;
   flex-shrink: 0;
@@ -976,6 +1029,61 @@ input[type="range"]::-moz-range-thumb {
 }
 
 
+/* Filter-sequence fader view: subtle 12-step hue gradient.
+   Visual only; does not change audio or fader behavior. */
+#mixer.seq-edit-mode .channel {
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--seq-hue, var(--accent)) 9%, #0d0d10),
+      #0d0d10 58%,
+      color-mix(in srgb, var(--seq-hue, var(--accent)) 5%, #08080a)
+    );
+  box-shadow: inset 0 0 18px color-mix(in srgb, var(--seq-hue, var(--accent)) 6%, transparent);
+}
+
+#mixer.seq-edit-mode .channel::before {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--seq-hue, var(--accent)) 70%, #c9c3b5);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--seq-hue, var(--accent)) 28%, transparent);
+  transform: translateX(-50%);
+  content: "";
+  pointer-events: none;
+}
+
+#mixer.seq-edit-mode .channel .note-label {
+  color: color-mix(in srgb, var(--seq-hue, var(--accent)) 58%, #c9c3b5);
+}
+
+#mixer.seq-edit-mode .channel .ratio-label,
+#mixer.seq-edit-mode .channel .oct-note-label {
+  color: color-mix(in srgb, var(--seq-hue, var(--accent)) 38%, #4b4b4b);
+}
+
+#mixer.seq-edit-mode .channel .fader-track {
+  background: color-mix(in srgb, var(--seq-hue, var(--accent)) 12%, #18181c);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--seq-hue, var(--accent)) 14%, transparent);
+}
+
+#mixer.seq-edit-mode .channel .fader-fill {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--seq-hue, var(--accent)) 88%, #17120d),
+    color-mix(in srgb, var(--seq-hue, var(--accent)) 58%, #72431d)
+  );
+}
+
+#mixer.seq-edit-mode .channel .fader-knob {
+  border-color: color-mix(in srgb, var(--seq-hue, var(--accent)) 52%, #5c4430);
+  background: color-mix(in srgb, var(--seq-hue, var(--accent)) 13%, #1b1712);
+}
+
+
 /* iPhone landscape / Home Screen safe-area support */
 @supports (padding: env(safe-area-inset-left)) {
   body {
@@ -1169,6 +1277,11 @@ input[type="range"]::-moz-range-thumb {
     min-width: 70px;
     padding-left: 8px;
     padding-right: 8px;
+  }
+
+  #fader-mode-toggle {
+    flex-basis: 58px;
+    font-size: 6px;
   }
 
   #arp-bank input[type="range"] {
@@ -1518,18 +1631,48 @@ input[type="range"]::-moz-range-thumb {
             <button id="arp-echo-toggle" class="route-toggle active" type="button" aria-pressed="true">Arp Echo</button>
             <button id="solo-echo-toggle" class="route-toggle" type="button" aria-pressed="false">Solo Echo</button>
           </div>
+          <button id="filter-seq-toggle" class="settings-toggle master-wide" type="button" aria-pressed="false">FILTER SEQ</button>
+          <label class="master-control master-range-readout">
+            <span>Seq Depth <b id="filter-seq-depth-readout">50</b></span>
+            <input type="range" id="filter-seq-depth" min="0" max="1" step="0.001" value="0.5">
+          </label>
+          <label class="master-control master-range-readout">
+            <span>Seq Glide <b id="filter-seq-glide-readout">70ms</b></span>
+            <input type="range" id="filter-seq-glide" min="0" max="1" step="0.001" value="0.35">
+          </label>
+          <label class="master-control">
+            <span>Seq Div</span>
+            <select id="filter-seq-division">
+              <option value="4">1 bar</option>
+              <option value="2">1/2</option>
+              <option value="1" selected>1/4</option>
+              <option value="0.5">1/8</option>
+              <option value="0.25">1/16</option>
+              <option value="0.125">1/32</option>
+            </select>
+          </label>
+          <label class="master-control">
+            <span>Seq Dir</span>
+            <select id="filter-seq-direction">
+              <option value="forward" selected>Forward</option>
+              <option value="reverse">Reverse</option>
+              <option value="pendulum">Pendulum</option>
+              <option value="random">Random</option>
+            </select>
+          </label>
           <label class="master-control master-range-readout">
             <span>Soft Release <b id="soft-release-time-readout">10.0s</b></span>
             <input type="range" id="soft-release-time" min="1" max="15" step="0.1" value="10">
           </label>
           <button id="adventure-toggle" class="settings-toggle master-wide" type="button" aria-pressed="false">AUTO PERFORM</button>
         </div>
-        <p class="master-note">Auto Perform slowly moves the surface controls after you set the notes. You can still grab any control while it runs; your released value becomes the new center. Rate shows the base morph cycle length, from 30s to 45m; Amount controls distance. Tempo and Arp Division stay manual so the long-form drift remains smooth. Echo routing keeps the original arp-to-echo behavior by default; drones and solo can be sent in manually.</p>
+        <p class="master-note">Auto Perform slowly moves the surface controls after you set the notes. You can still grab any control while it runs; your released value becomes the new center. Rate shows the base morph cycle length, from 30s to 45m; Amount controls distance. Tempo and Arp Division stay manual so the long-form drift remains smooth. Echo routing keeps the original arp-to-echo behavior by default; drones and solo can be sent in manually after the main filter shape. Filter Seq uses its own independent 12-step fader page as a stepped cutoff pattern when enabled; the main fader mode button switches between drone mixing and sequence editing. Cutoff remains the ceiling/base for the sequenced motion.</p>
       </div>
     </div>
 
     <div id="octave-strip">
       <div id="octave-bank">
+        <button id="fader-mode-toggle" type="button" aria-pressed="false">FADERS DRONE</button>
         <div id="oct-label">oct</div>
         <div id="octaves"></div>
       </div>
@@ -1629,6 +1772,27 @@ const themes = {
   malkauns: ["#b887d9", "#54326f", "#76528e", "#110d14", "#3d2a4b"],
   bp: ["#7ad9d1", "#2b6b66", "#4c918b", "#0a1312", "#284c49"]
 };
+
+
+
+const filterSeqHuePalette = [
+  "#e3a15e", "#d9b65a", "#b8c65f", "#7bc36f",
+  "#61bfa1", "#68b7d9", "#6f95e6", "#8b79e8",
+  "#ad72d9", "#cf6aa7", "#d96978", "#d9865f"
+];
+
+function applyFilterSeqHueGradient() {
+  const channels = Array.from(document.querySelectorAll("#mixer .channel"));
+  channels.forEach((channel, index) => {
+    channel.style.setProperty("--seq-hue", filterSeqHuePalette[index % filterSeqHuePalette.length]);
+  });
+}
+
+function setFilterSeqVisualMode(isSeqMode) {
+  if (!els || !els.mixer) return;
+  els.mixer.classList.toggle("seq-edit-mode", !!isSeqMode);
+  if (isSeqMode) applyFilterSeqHueGradient();
+}
 
 
 const harmonyMaps = {
@@ -1804,6 +1968,8 @@ let delayWet;
 let droneEchoSend;
 let arpEchoSend;
 let soloEchoSend;
+let droneEchoFilter;
+let soloEchoFilter;
 let arpBus;
 let arpLp;
 let delayPanA;
@@ -1838,6 +2004,18 @@ let soloVolume = 1;
 let droneEchoOn = false;
 let arpEchoOn = true;
 let soloEchoOn = false;
+let filterSeqOn = false;
+let filterSeqEditMode = false;
+let filterSeqDepth = 0.5;
+let filterSeqGlide = 0.35;
+let filterSeqDivision = 1;
+let filterSeqDirection = "forward";
+let filterSeqActiveOnly = false;
+let filterSeqStep = 0;
+let filterSeqDir = 1;
+let filterSeqTimer = null;
+let filterSeqValue = 0;
+let filterSeqCurrentKey = null;
 let driftAmount = driftControl * detuneMax;
 let dreamHouseAmount = dreamHouseControl * wanderMax;
 let arpMode = "up1";
@@ -1903,6 +2081,7 @@ let slipRescheduleTimer = null;
 
 const voices = {};
 const faderVals = {};
+const filterSeqVals = {};
 const activeArpVoices = new Set();
 const waveCache = new Map();
 
@@ -1918,6 +2097,7 @@ const els = {
   tuning: document.querySelector("#tuning-select"),
   center: document.querySelector("#center-select"),
   octaves: document.querySelector("#octaves"),
+  faderModeToggle: document.querySelector("#fader-mode-toggle"),
   mixer: document.querySelector("#mixer"),
   activeBar: document.querySelector("#active-bar"),
   soloRoll: document.querySelector("#solo-roll"),
@@ -1946,6 +2126,14 @@ const els = {
   droneEchoToggle: document.querySelector("#drone-echo-toggle"),
   arpEchoToggle: document.querySelector("#arp-echo-toggle"),
   soloEchoToggle: document.querySelector("#solo-echo-toggle"),
+  filterSeqToggle: document.querySelector("#filter-seq-toggle"),
+  filterSeqDepth: document.querySelector("#filter-seq-depth"),
+  filterSeqDepthReadout: document.querySelector("#filter-seq-depth-readout"),
+  filterSeqGlide: document.querySelector("#filter-seq-glide"),
+  filterSeqGlideReadout: document.querySelector("#filter-seq-glide-readout"),
+  filterSeqDivision: document.querySelector("#filter-seq-division"),
+  filterSeqDirection: document.querySelector("#filter-seq-direction"),
+  filterSeqActiveOnly: document.querySelector("#filter-seq-active-only"),
   adventureAmount: document.querySelector("#adventure-amount"),
   adventureRate: document.querySelector("#adventure-rate"),
   adventureRateReadout: document.querySelector("#adventure-rate-readout"),
@@ -2164,22 +2352,32 @@ function createScriptTptSvfNode(context) {
   return node;
 }
 
+function setFilterNodeParam(node, name, value, timeConstant = 0.03) {
+  if (!node || !audio) return;
+  if (node.parameters && node.parameters.get(name)) {
+    node.parameters.get(name).setTargetAtTime(value, audio.currentTime, timeConstant);
+  } else if (node.setParams) {
+    node.setParams({ [name]: value });
+  }
+}
+
 function setSvfParam(name, value, timeConstant = 0.03) {
-  if (!svf || !audio) return;
-  if (svf.parameters && svf.parameters.get(name)) {
-    svf.parameters.get(name).setTargetAtTime(value, audio.currentTime, timeConstant);
-  } else if (svf.setParams) {
-    svf.setParams({ [name]: value });
+  // Keep the main filter and the post-filter echo-send filters locked together.
+  // Drone/Solo echo routing is now: source → matched filter → delay → output.
+  [svf, droneEchoFilter, soloEchoFilter].forEach((node) => setFilterNodeParam(node, name, value, timeConstant));
+}
+
+function resetSingleFilterLfo(node) {
+  if (!node) return;
+  if (node.port) {
+    node.port.postMessage({ type: "resetLfo" });
+  } else if (node.resetLfo) {
+    node.resetLfo();
   }
 }
 
 function resetFilterLfo() {
-  if (!svf) return;
-  if (svf.port) {
-    svf.port.postMessage({ type: "resetLfo" });
-  } else if (svf.resetLfo) {
-    svf.resetLfo();
-  }
+  [svf, droneEchoFilter, soloEchoFilter].forEach(resetSingleFilterLfo);
 }
 
 async function setupAudio() {
@@ -2236,6 +2434,8 @@ async function setupAudio() {
     shaper.curve = saturationCurve(1.35);
     shaper.oversample = "none";
     svf = await createTptSvfNode(audio);
+    droneEchoFilter = await createTptSvfNode(audio);
+    soloEchoFilter = await createTptSvfNode(audio);
     filterBus.connect(svf);
     svf.connect(filterTrim);
     filterTrim.connect(master);
@@ -2265,8 +2465,12 @@ async function setupAudio() {
     arpLp.connect(delayDry);
     arpLp.connect(arpEchoSend);
     arpEchoSend.connect(delaySend);
-    droneEchoSend.connect(delaySend);
-    soloEchoSend.connect(delaySend);
+    // Drone and solo echo sends are filtered before they hit the delay, so their repeats
+    // are post-filter rather than raw pre-filter tone.
+    droneEchoSend.connect(droneEchoFilter);
+    droneEchoFilter.connect(delaySend);
+    soloEchoSend.connect(soloEchoFilter);
+    soloEchoFilter.connect(delaySend);
     delaySend.connect(delayA);
     delaySend.connect(delayB);
     delayA.connect(delayShapeA);
@@ -2436,11 +2640,23 @@ function applyVoiceMorph(voice, mix) {
   voice.waveGain.gain.setTargetAtTime(morphGainComp(mix), audio.currentTime, 0.08);
 }
 
-function updateFilter() {
+function effectiveCutoffControl() {
+  if (!filterSeqOn) return cutoff;
+  const depth = Math.max(0, Math.min(1, filterSeqDepth));
+  const step = Math.max(0, Math.min(1, filterSeqValue));
+  // Filter Seq is now an independent 12-step motion layer.
+  // The front-panel Cutoff remains the ceiling/base, so lowering Cutoff still closes
+  // the whole sequenced filter pattern instead of the sequencer overriding it.
+  return Math.max(0.001, Math.min(1, cutoff * (1 - depth + step * depth)));
+}
+
+function updateFilter(timeConstantOverride = null) {
   if (!audio || !svf) return;
   const now = audio.currentTime;
-  currentFilterFc = 35 * Math.pow(13500 / 35, cutoff);
-  setSvfParam("cutoff", currentFilterFc, 0.03);
+  const cutoffControl = effectiveCutoffControl();
+  const filterTime = timeConstantOverride ?? (filterSeqOn ? mapFilterSeqGlide(filterSeqGlide) : 0.03);
+  currentFilterFc = 35 * Math.pow(13500 / 35, cutoffControl);
+  setSvfParam("cutoff", currentFilterFc, filterTime);
   setSvfParam("q", 0.6 + res * 3.8, 0.04);
   setSvfParam("lfoRate", lfoRate, 0.02);
   setSvfParam("lfoDepth", lfoDepth, 0.04);
@@ -2463,6 +2679,145 @@ function mapDelayDivision(value) {
   const a = stops[index].value;
   const b = stops[index + 1].value;
   return a * Math.pow(b / a, frac);
+}
+
+function mapFilterSeqGlide(value) {
+  const v = Math.max(0, Math.min(1, Number(value) || 0));
+  return 0.008 + v * 0.34;
+}
+
+function updateFilterSeqReadouts() {
+  if (els.filterSeqDepthReadout) els.filterSeqDepthReadout.textContent = Math.round(filterSeqDepth * 100);
+  if (els.filterSeqGlideReadout) els.filterSeqGlideReadout.textContent = `${Math.round(mapFilterSeqGlide(filterSeqGlide) * 1000)}ms`;
+}
+
+function filterSeqStepSeconds() {
+  const beatSeconds = 60 / Math.max(1, arpTempo || 100);
+  return Math.max(0.025, beatSeconds * Math.max(0.125, filterSeqDivision || 1));
+}
+
+function filterSeqKey(index) {
+  return `seq_${index}`;
+}
+
+function getFilterSeqValue(key) {
+  if (!Object.prototype.hasOwnProperty.call(filterSeqVals, key)) {
+    // The dedicated sequence page opens fully up by default, so engaging the sequencer
+    // does not suddenly darken the instrument until the user draws a pattern.
+    filterSeqVals[key] = key.startsWith("seq_") ? 1 : Math.max(0, Math.min(1, faderVals[key] || 0));
+  }
+  return filterSeqVals[key];
+}
+
+function activeDroneNoteIndexes() {
+  const indexes = new Set();
+  Array.from(new Set([...Object.keys(faderVals), ...Object.keys(voices)])).forEach((key) => {
+    const [noteIndex, octave] = key.split("_").map(Number);
+    if (Number.isNaN(noteIndex) || Number.isNaN(octave)) return;
+    const droneValue = Math.max(0, Math.min(1, faderVals[key] || 0));
+    if (droneValue > thresholdOff || voices[key]) indexes.add(noteIndex % 12);
+  });
+  return indexes;
+}
+
+function currentFilterSeqChannels() {
+  // Always run the dedicated 12-step filter sequence.
+  // It is no longer gated by active drone notes, octave position, or the drone layer.
+  return Array.from({ length: 12 }, (_, index) => {
+    const key = filterSeqKey(index);
+    return {
+      key,
+      noteIndex: index,
+      octave: null,
+      value: getFilterSeqValue(key),
+      element: document.querySelector(`#mixer .channel[data-key="${key}"]`)
+    };
+  });
+}
+
+function renderFilterSeqHit() {
+  document.querySelectorAll("#mixer .channel.seq-hit").forEach((el) => el.classList.remove("seq-hit"));
+  if (!filterSeqOn || !filterSeqCurrentKey) return;
+  const visible = document.querySelector(`#mixer .channel[data-key="${filterSeqCurrentKey}"]`);
+  if (visible) visible.classList.add("seq-hit");
+}
+
+function applyFilterSeqStep() {
+  if (!filterSeqOn) return;
+  const channels = currentFilterSeqChannels();
+  if (!channels.length) return;
+
+  if (filterSeqDirection === "random") {
+    filterSeqStep = Math.floor(Math.random() * channels.length);
+  } else {
+    filterSeqStep = Math.max(0, Math.min(channels.length - 1, filterSeqStep));
+  }
+
+  const step = channels[filterSeqStep] || channels[0];
+  filterSeqCurrentKey = step.key;
+  filterSeqValue = Math.max(0, Math.min(1, step.value || 0));
+  renderFilterSeqHit();
+  updateFilter();
+
+  if (filterSeqDirection === "reverse") {
+    filterSeqStep = (filterSeqStep - 1 + channels.length) % channels.length;
+  } else if (filterSeqDirection === "pendulum") {
+    filterSeqStep += filterSeqDir;
+    if (filterSeqStep >= channels.length - 1 || filterSeqStep <= 0) filterSeqDir *= -1;
+    filterSeqStep = Math.max(0, Math.min(channels.length - 1, filterSeqStep));
+  } else if (filterSeqDirection !== "random") {
+    filterSeqStep = (filterSeqStep + 1) % channels.length;
+  }
+}
+
+function scheduleFilterSeq() {
+  clearFilterSeqTimer();
+  if (!filterSeqOn) return;
+  const tick = () => {
+    if (!filterSeqOn) return;
+    applyFilterSeqStep();
+    filterSeqTimer = setTimeout(tick, filterSeqStepSeconds() * 1000);
+  };
+  tick();
+}
+
+function clearFilterSeqTimer() {
+  if (filterSeqTimer) {
+    clearTimeout(filterSeqTimer);
+    filterSeqTimer = null;
+  }
+}
+
+function setFilterSeqEditMode(on) {
+  filterSeqEditMode = Boolean(on);
+  if (els.faderModeToggle) {
+    els.faderModeToggle.classList.toggle("active", filterSeqEditMode);
+    els.faderModeToggle.setAttribute("aria-pressed", String(filterSeqEditMode));
+    els.faderModeToggle.textContent = filterSeqEditMode ? "FADERS SEQ" : "FADERS DRONE";
+  }
+  document.body.classList.toggle("filter-seq-editing", filterSeqEditMode);
+  buildMixer();
+}
+
+function setFilterSeqOn(on) {
+  filterSeqOn = Boolean(on);
+  if (els.filterSeqToggle) {
+    els.filterSeqToggle.classList.toggle("active", filterSeqOn);
+    els.filterSeqToggle.setAttribute("aria-pressed", String(filterSeqOn));
+  }
+  document.body.classList.toggle("filter-seq-on", filterSeqOn);
+  if (filterSeqOn) {
+    resumeAudio();
+    filterSeqStep = 0;
+    filterSeqDir = 1;
+    scheduleFilterSeq();
+  } else {
+    clearFilterSeqTimer();
+    filterSeqValue = 0;
+    filterSeqCurrentKey = null;
+    document.querySelectorAll("#mixer .channel.seq-hit").forEach((el) => el.classList.remove("seq-hit"));
+    updateFilter(0.05);
+  }
 }
 
 function delayDivisionLabel(value) {
@@ -2630,6 +2985,7 @@ function setTempoFromControl(value, reschedule = true) {
   updateArpReadout();
   updateFilter();
   updateDelay();
+  if (filterSeqOn && reschedule && !adventureApplying) scheduleFilterSeq();
   if (arpOn && reschedule && !adventureApplying) {
     resetFilterLfo();
     scheduleArp();
@@ -2729,11 +3085,15 @@ function releaseAll(fadeSeconds = 0.35) {
   releaseArps(fadeSeconds);
   stopSolo(fadeSeconds <= 0.25);
   Object.keys(faderVals).forEach((key) => delete faderVals[key]);
-  document.querySelectorAll(".channel").forEach((channel) => {
-    channel.classList.remove("active");
-    channel.value = 0;
-    setFaderPos(channel, 0);
-  });
+  if (!filterSeqEditMode) {
+    document.querySelectorAll(".channel").forEach((channel) => {
+      channel.classList.remove("active", "seq-hit");
+      channel.value = 0;
+      setFaderPos(channel, 0);
+    });
+  } else {
+    document.querySelectorAll(".channel").forEach((channel) => channel.classList.remove("active", "seq-hit"));
+  }
   updateActiveState();
 }
 
@@ -3226,6 +3586,7 @@ function buildOctaves() {
       buildMixer();
       buildSoloRoll();
       updateActiveState();
+      renderFilterSeqHit();
     });
     els.octaves.append(button);
   });
@@ -3239,8 +3600,26 @@ function hasSameNoteInOtherOctave(noteIndex) {
 }
 
 function buildMixer() {
-  els.mixer.className = currentLimit === "shruti" ? "shruti-mode" : "";
+  els.mixer.className = filterSeqEditMode ? "seq-edit-mode" : (currentLimit === "shruti" ? "shruti-mode" : "");
   els.mixer.innerHTML = "";
+
+  if (filterSeqEditMode) {
+    Array.from({ length: 12 }, (_, index) => index).forEach((stepIndex) => {
+      const key = filterSeqKey(stepIndex);
+      const channel = document.createElement("div");
+      channel.className = "channel harmony-color";
+      channel.dataset.key = key;
+      channel.value = getFilterSeqValue(key);
+      channel.innerHTML = `<div class="pan-label">SEQ</div><div class="note-label">${stepIndex + 1}</div><div class="oct-note-label">filter</div><div class="ratio-label">step</div><div class="fader-wrap"><div class="fader-track"><div class="fader-fill"></div><div class="threshold-line" style="bottom:${thresholdOn * 100}%"></div><div class="fader-knob"></div></div></div><div class="vol-readout">0</div>`;
+      els.mixer.append(channel);
+      requestAnimationFrame(() => setFaderPos(channel, channel.value));
+      wireFader(channel, null, stepIndex, key);
+    });
+    requestAnimationFrame(applyFilterSeqHueGradient);
+    renderFilterSeqHit();
+    return;
+  }
+
   currentNotes().forEach((note, noteIndex) => {
     const key = voiceKey(noteIndex, currentOctave);
     const channel = document.createElement("div");
@@ -3252,6 +3631,7 @@ function buildMixer() {
     requestAnimationFrame(() => setFaderPos(channel, channel.value));
     wireFader(channel, note, noteIndex, key);
   });
+  renderFilterSeqHit();
 }
 
 function wireFader(channel, note, noteIndex, key) {
@@ -3264,6 +3644,15 @@ function wireFader(channel, note, noteIndex, key) {
     const value = Math.max(0, Math.min(1, startVal + (startY - y) / trackHeight));
     const active = channel.classList.contains("active");
     channel.value = value;
+    if (filterSeqEditMode) {
+      filterSeqVals[key] = value;
+      setFaderPos(channel, value);
+      if (key === filterSeqCurrentKey) {
+        filterSeqValue = value;
+        updateFilter();
+      }
+      return;
+    }
     faderVals[key] = value;
     setFaderPos(channel, value);
     if (!active && value >= thresholdOn) {
@@ -3639,6 +4028,33 @@ els.mainVolume.addEventListener("input", updateMainVolume);
 els.droneEchoToggle.addEventListener("click", () => { droneEchoOn = !droneEchoOn; updateEchoRouting(); });
 els.arpEchoToggle.addEventListener("click", () => { arpEchoOn = !arpEchoOn; updateEchoRouting(); });
 els.soloEchoToggle.addEventListener("click", () => { soloEchoOn = !soloEchoOn; updateEchoRouting(); });
+els.faderModeToggle.addEventListener("click", () => setFilterSeqEditMode(!filterSeqEditMode));
+els.filterSeqToggle.addEventListener("click", () => setFilterSeqOn(!filterSeqOn));
+els.filterSeqDepth.addEventListener("input", () => {
+  filterSeqDepth = Number(els.filterSeqDepth.value) || 0;
+  updateFilterSeqReadouts();
+  updateFilter();
+});
+els.filterSeqGlide.addEventListener("input", () => {
+  filterSeqGlide = Number(els.filterSeqGlide.value) || 0;
+  updateFilterSeqReadouts();
+});
+els.filterSeqDivision.addEventListener("change", () => {
+  filterSeqDivision = Number(els.filterSeqDivision.value) || 1;
+  if (filterSeqOn) scheduleFilterSeq();
+});
+els.filterSeqDirection.addEventListener("change", () => {
+  filterSeqDirection = els.filterSeqDirection.value || "forward";
+  filterSeqDir = 1;
+});
+if (els.filterSeqActiveOnly) {
+  els.filterSeqActiveOnly.addEventListener("click", () => {
+    filterSeqActiveOnly = !filterSeqActiveOnly;
+    els.filterSeqActiveOnly.classList.toggle("active", filterSeqActiveOnly);
+    els.filterSeqActiveOnly.setAttribute("aria-pressed", String(filterSeqActiveOnly));
+    if (filterSeqOn) scheduleFilterSeq();
+  });
+}
 els.adventureAmount.addEventListener("input", () => { adventureAmount = Number(els.adventureAmount.value) || 0; });
 els.adventureRate.addEventListener("input", () => {
   adventureCycleSeconds = mapAdventureRate(Number(els.adventureRate.value) || 0);
@@ -3767,6 +4183,7 @@ updateMainVolume();
 updateEchoRouting();
 updateAdventureRateReadout();
 updateSoftReleaseReadout();
+updateFilterSeqReadouts();
 setMotionCaps();
 
 </script>
