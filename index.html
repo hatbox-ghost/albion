@@ -553,14 +553,16 @@ input[type="range"]::-moz-range-thumb {
 }
 
 #fader-mode-toggle {
-  flex: 0 0 82px;
-  border: 0;
-  border-right: 1px solid #171717;
-  background: #08080a;
+  flex: 0 0 52px;
+  align-self: stretch;
+  min-height: 24px;
+  border: 1px solid #181818;
+  border-radius: 3px;
+  background: #0b0b0d;
   color: #68645a;
   font-size: 7px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -594,9 +596,9 @@ body.filter-seq-editing #mixer {
 
 .solo-header {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 7px;
+  gap: 5px;
   margin-bottom: 5px;
 }
 
@@ -619,9 +621,9 @@ body.filter-seq-editing #mixer {
   border-radius: 3px;
   background: #0b0b0d;
   color: #4c4c4c;
-  font-size: 7px;
+  font-size: 6px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -1020,6 +1022,100 @@ body.filter-seq-editing #mixer {
   width: 62px;
 }
 
+.tuning-inline-control {
+  display: flex;
+  flex: 0 1 170px;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 118px;
+  max-width: 188px;
+  gap: 2px;
+}
+
+.tuning-inline-control span {
+  color: #8f8a7b;
+  font-size: 6px;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.tuning-inline-control select {
+  width: 100%;
+  min-width: 0;
+  height: 22px;
+  border: 1px solid #242018;
+  border-radius: 3px;
+  background: var(--panel-active);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.transpose-control {
+  display: grid;
+  grid-template-columns: 22px minmax(42px, 1fr) 22px;
+  align-items: stretch;
+  flex: 0 0 116px;
+  gap: 1px;
+  min-width: 104px;
+  max-width: 132px;
+}
+
+.transpose-control span {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+  color: #8f8a7b;
+  font-size: 6px;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.transpose-control button,
+.transpose-readout {
+  min-height: 20px;
+  border: 1px solid #242018;
+  background: var(--panel-active);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.transpose-readout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .transpose-control {
+    flex-basis: 102px;
+    min-width: 96px;
+    grid-template-columns: 20px minmax(38px, 1fr) 20px;
+  }
+
+  .tuning-inline-control {
+    flex-basis: 128px;
+    min-width: 104px;
+    max-width: 142px;
+  }
+
+  .tuning-inline-control span { font-size: 5px; }
+  .tuning-inline-control select { height: 18px; font-size: 7px; }
+  .transpose-control span { font-size: 5px; }
+  .transpose-control button, .transpose-readout { min-height: 18px; font-size: 8px; }
+}
+
 .master-note {
   padding: 9px 11px 11px;
   border-top: 1px solid #171717;
@@ -1219,7 +1315,7 @@ body.filter-seq-editing #mixer {
 
 /* iPhone performance layout fix: give ARP controls real fader space. */
 #octave-strip {
-  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+  grid-template-columns: minmax(0, 0.46fr) minmax(0, 0.54fr);
 }
 
 #arp-bank {
@@ -1251,7 +1347,7 @@ body.filter-seq-editing #mixer {
 
 @media (orientation: landscape) and (max-height: 520px) {
   #octave-strip {
-    grid-template-columns: minmax(0, 0.40fr) minmax(0, 0.60fr);
+    grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
     min-height: 36px;
   }
 
@@ -1280,8 +1376,9 @@ body.filter-seq-editing #mixer {
   }
 
   #fader-mode-toggle {
-    flex-basis: 58px;
-    font-size: 6px;
+    flex-basis: 29px;
+    font-size: 5px;
+    letter-spacing: 0.04em;
   }
 
   #arp-bank input[type="range"] {
@@ -1367,7 +1464,7 @@ body.filter-seq-editing #mixer {
   }
 
   #octave-strip {
-    grid-template-columns: minmax(0, 0.32fr) minmax(0, 0.68fr);
+    grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
     min-height: 34px;
   }
 
@@ -1493,7 +1590,7 @@ body.filter-seq-editing #mixer {
   }
 
   #octave-strip {
-    grid-template-columns: minmax(0, 0.30fr) minmax(0, 0.70fr);
+    grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
     min-height: 31px;
   }
 
@@ -1549,6 +1646,196 @@ body.filter-seq-editing #mixer {
   }
 }
 
+
+/* Organized lower performance bar: musical mode controls live together;
+   readouts are separated so the solo strip stays playable and uncluttered. */
+#solo-panel {
+  padding: 5px 7px 7px;
+}
+
+.toggle-bar {
+  display: grid;
+  grid-template-columns: 54px 54px minmax(112px, 1fr) minmax(112px, 128px) 48px;
+  align-items: end;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.solo-header {
+  display: none;
+}
+
+.solo-status {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, auto);
+  align-items: center;
+  gap: 8px;
+  min-height: 14px;
+  margin-bottom: 5px;
+  padding: 0 1px;
+}
+
+.solo-values {
+  min-width: 0;
+  overflow: hidden;
+  color: #5f5a50;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#fader-mode-toggle,
+#filter-seq-main-toggle,
+#solo-hold {
+  width: 100%;
+  min-width: 0;
+  min-height: 31px;
+  padding: 0 4px;
+}
+
+#fader-mode-toggle,
+#filter-seq-main-toggle {
+  flex: none;
+  align-self: stretch;
+  border-color: #181818;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+}
+
+#filter-seq-main-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid #181818;
+  border-radius: 3px;
+  background: #0b0b0d;
+  color: #68645a;
+  box-shadow: none;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+#filter-seq-main-toggle.active {
+  background: var(--panel-active);
+  color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+#solo-hold {
+  flex: none;
+  border-color: #211b16;
+  font-size: 7px;
+  letter-spacing: 0.06em;
+}
+
+.mode-inline-control {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.tuning-inline-control {
+  flex: none;
+  min-width: 0;
+  max-width: none;
+  gap: 2px;
+}
+
+.mode-inline-control span,
+.tuning-inline-control span,
+.transpose-control span {
+  display: block;
+  min-height: 7px;
+  margin: 0 0 2px;
+  color: #5f5a50;
+  font-size: 6px;
+  letter-spacing: 0.13em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.tuning-inline-control select {
+  height: 22px;
+}
+
+.transpose-control {
+  flex: none;
+  min-width: 0;
+  max-width: none;
+  grid-template-columns: 23px minmax(44px, 1fr) 23px;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #solo-panel {
+    padding: 3px 6px 4px;
+  }
+
+  .toggle-bar {
+    grid-template-columns: 46px 46px minmax(96px, 1fr) minmax(96px, 112px) 42px;
+    gap: 4px;
+    margin-bottom: 3px;
+  }
+
+  .solo-status {
+    min-height: 10px;
+    margin-bottom: 3px;
+  }
+
+  .solo-title,
+  .solo-values {
+    font-size: 6px;
+    line-height: 1;
+  }
+
+  .mode-inline-control span,
+  .tuning-inline-control span,
+  .transpose-control span {
+    min-height: 6px;
+    margin-bottom: 1px;
+    font-size: 5px;
+    letter-spacing: 0.1em;
+  }
+
+  #fader-mode-toggle,
+  #filter-seq-main-toggle,
+  #solo-hold {
+    min-height: 24px;
+    font-size: 6px;
+  }
+
+  .transpose-control {
+    flex-basis: auto;
+    min-width: 0;
+    grid-template-columns: 19px minmax(36px, 1fr) 19px;
+  }
+
+  .tuning-inline-control {
+    flex-basis: auto;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+  .toggle-bar {
+    grid-template-columns: 50px 50px minmax(96px, 1fr) minmax(104px, 118px) 44px;
+    gap: 4px;
+  }
+
+  .solo-status {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .solo-values {
+    text-align: left;
+  }
+}
+
 </style>
   </head>
   <body>
@@ -1590,14 +1877,6 @@ body.filter-seq-editing #mixer {
           <button id="master-close" type="button">×</button>
         </div>
         <div class="master-grid">
-          <label class="master-control">
-            <span>Tuning</span>
-            <select id="tuning-select"></select>
-          </label>
-          <label class="master-control">
-            <span>Root</span>
-            <select id="center-select"></select>
-          </label>
           <label class="master-control master-range-readout">
             <span>Tempo <b id="tempo-readout">100 BPM</b></span>
             <input type="range" id="arp-tempo" min="0" max="1" step="0.001" value="0.634632">
@@ -1643,6 +1922,8 @@ body.filter-seq-editing #mixer {
           <label class="master-control">
             <span>Seq Div</span>
             <select id="filter-seq-division">
+              <option value="16">4 bar</option>
+              <option value="8">2 bar</option>
               <option value="4">1 bar</option>
               <option value="2">1/2</option>
               <option value="1" selected>1/4</option>
@@ -1666,13 +1947,12 @@ body.filter-seq-editing #mixer {
           </label>
           <button id="adventure-toggle" class="settings-toggle master-wide" type="button" aria-pressed="false">AUTO PERFORM</button>
         </div>
-        <p class="master-note">Auto Perform slowly moves the surface controls after you set the notes. You can still grab any control while it runs; your released value becomes the new center. Rate shows the base morph cycle length, from 30s to 45m; Amount controls distance. Tempo and Arp Division stay manual so the long-form drift remains smooth. Echo routing keeps the original arp-to-echo behavior by default; drones and solo can be sent in manually after the main filter shape. Filter Seq uses its own independent 12-step fader page as a stepped cutoff pattern when enabled; the main fader mode button switches between drone mixing and sequence editing. Cutoff remains the ceiling/base for the sequenced motion.</p>
+        <p class="master-note">Auto Perform slowly moves the surface controls after you set the notes. You can still grab any control while it runs; your released value becomes the new surface reference. Rate shows the base morph cycle length, from 30s to 45m; Amount controls distance. Tempo and Arp Division stay manual so the long-form drift remains smooth. Echo routing keeps the original arp-to-echo behavior by default; drones and solo can be sent in manually after the main filter shape. Intonation now lives on the main performance bar next to 1/1 Transpose and Hold, and changing profiles retunes active notes to the closest available ratio instead of releasing them. Filter Seq uses its own independent 12-step fader page as a stepped cutoff pattern when enabled; the lower DRONE/SEQ toggle switches between drone mixing and sequence editing. Cutoff remains the ceiling/base for the sequenced motion.</p>
       </div>
     </div>
 
     <div id="octave-strip">
       <div id="octave-bank">
-        <button id="fader-mode-toggle" type="button" aria-pressed="false">FADERS DRONE</button>
         <div id="oct-label">oct</div>
         <div id="octaves"></div>
       </div>
@@ -1733,7 +2013,14 @@ body.filter-seq-editing #mixer {
     <div id="active-bar">-</div>
     <div id="mixer" aria-label="Drone mixer"></div>
     <div id="solo-panel">
-      <div class="solo-header"><div id="solo-note-readout" class="solo-title">-</div><div id="delay-value-readout" class="solo-values">wet 32 · lag 42 · div 1/4 · fb 34 · slip 0</div><button id="solo-hold" type="button" aria-pressed="false">Hold</button></div>
+      <div id="toggle-bar" class="toggle-bar" aria-label="Performance mode controls">
+        <div class="mode-inline-control"><span>Faders</span><button id="fader-mode-toggle" type="button" aria-pressed="false">DRONE</button></div>
+        <div class="mode-inline-control"><span>Filter Seq</span><button id="filter-seq-main-toggle" type="button" aria-pressed="false">OFF</button></div>
+        <label class="tuning-inline-control"><span>Intonation</span><select id="tuning-select" aria-label="Intonation profile"></select></label>
+        <div class="transpose-control" aria-label="1/1 Transpose"><span>1/1 Transpose</span><button id="transpose-down" type="button" aria-label="Transpose 1/1 down">−</button><div id="transpose-readout" class="transpose-readout" aria-live="polite">C</div><button id="transpose-up" type="button" aria-label="Transpose 1/1 up">+</button></div>
+        <button id="solo-hold" type="button" aria-pressed="false">Hold</button>
+      </div>
+      <div class="solo-status"><div id="solo-note-readout" class="solo-title">-</div><div id="delay-value-readout" class="solo-values">wet 32 · lag 42 · div 1/4 · fb 34 · slip 0</div></div>
       <div id="solo-roll" class="solo-roll" aria-label="Solo strip"></div>
     </div>
     <div id="release-bank"><label class="release-main-volume"><span>Main Vol</span><input type="range" id="main-volume" min="0" max="1" step="0.001" value="0.55"><b id="main-volume-readout">55</b></label><button id="hard-release" class="release-btn" type="button">Hard Release</button><button id="soft-release" class="release-btn" type="button">Soft Release</button></div>
@@ -1990,6 +2277,7 @@ let flutterGain;
 let currentLimit = 5;
 let currentOctave = 3;
 let currentCenterIndex = 0;
+let transposeSemitones = 0;
 let cutoff = 1;
 let res = 0;
 let oscMix = 0;
@@ -2095,7 +2383,9 @@ const els = {
   tempoClose: document.querySelector("#tempo-close"),
   tapTempo: document.querySelector("#tap-tempo"),
   tuning: document.querySelector("#tuning-select"),
-  center: document.querySelector("#center-select"),
+  transposeDown: document.querySelector("#transpose-down"),
+  transposeUp: document.querySelector("#transpose-up"),
+  transposeReadout: document.querySelector("#transpose-readout"),
   octaves: document.querySelector("#octaves"),
   faderModeToggle: document.querySelector("#fader-mode-toggle"),
   mixer: document.querySelector("#mixer"),
@@ -2127,6 +2417,7 @@ const els = {
   arpEchoToggle: document.querySelector("#arp-echo-toggle"),
   soloEchoToggle: document.querySelector("#solo-echo-toggle"),
   filterSeqToggle: document.querySelector("#filter-seq-toggle"),
+  filterSeqMainToggle: document.querySelector("#filter-seq-main-toggle"),
   filterSeqDepth: document.querySelector("#filter-seq-depth"),
   filterSeqDepthReadout: document.querySelector("#filter-seq-depth-readout"),
   filterSeqGlide: document.querySelector("#filter-seq-glide"),
@@ -2567,12 +2858,85 @@ function currentNotes() {
   return tuningDefs[currentLimit].notes;
 }
 
+function ratioCents(ratio) {
+  return 1200 * Math.log2(ratio[0] / ratio[1]);
+}
+
+function closestNoteIndexByCents(cents, notes) {
+  if (!notes || !notes.length) return 0;
+  let bestIndex = 0;
+  let bestDistance = Infinity;
+  notes.forEach((note, index) => {
+    const distance = Math.abs(ratioCents(note.r) - cents);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestIndex = index;
+    }
+  });
+  return bestIndex;
+}
+
+function migrateNoteIndex(noteIndex, oldNotes, newNotes) {
+  const oldNote = oldNotes?.[noteIndex];
+  if (!oldNote) return Math.min(noteIndex, Math.max(0, (newNotes?.length || 1) - 1));
+  return closestNoteIndexByCents(ratioCents(oldNote.r), newNotes);
+}
+
 function voiceKey(noteIndex, octave) {
   return `${noteIndex}_${octave}`;
 }
 
+function transposeMultiplier() {
+  return Math.pow(2, transposeSemitones / 12);
+}
+
 function noteFreq(ratio, octave) {
-  return baseC3 * (ratio[0] / ratio[1]) * Math.pow(2, octave - 3);
+  return baseC3 * transposeMultiplier() * Math.pow(2, octave - 3) * (ratio[0] / ratio[1]);
+}
+
+function transposeReadoutText() {
+  const chromatic = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+  const semis = Math.max(-36, Math.min(36, Math.round(transposeSemitones)));
+  const noteIndex = ((semis % 12) + 12) % 12;
+  const octaveOffset = Math.floor(semis / 12);
+  const suffix = octaveOffset === 0 ? "" : ` ${octaveOffset > 0 ? "+" : ""}${octaveOffset}`;
+  return `${chromatic[noteIndex]}${suffix}`;
+}
+
+function updateTransposeReadout() {
+  if (els.transposeReadout) els.transposeReadout.textContent = transposeReadoutText();
+}
+
+function retuneActiveVoices() {
+  if (!audio) return;
+  const now = audio.currentTime;
+  Object.entries(voices).forEach(([key, voice]) => {
+    const [noteIndex, octave] = key.split("_").map(Number);
+    const note = currentNotes()[noteIndex];
+    if (!note || !voice?.osc) return;
+    voice.baseFreq = noteFreq(note.r, octave);
+    voice.osc.frequency.cancelScheduledValues(now);
+    voice.osc.frequency.setTargetAtTime(voice.baseFreq, now, 0.035);
+  });
+
+  if (soloVoice && soloActiveIndex !== null) {
+    const note = currentNotes()[soloActiveIndex];
+    const octave = soloAnchor?.octave ?? currentOctave;
+    if (note) {
+      const freq = noteFreq(note.r, octave);
+      soloVoice.osc.frequency.cancelScheduledValues(now);
+      soloVoice.osc.frequency.setTargetAtTime(freq, now, 0.035);
+      if (soloAnchor) soloAnchor.freq = freq;
+    }
+  }
+}
+
+function setTransposeSemitones(nextValue) {
+  const next = Math.max(-36, Math.min(36, Math.round(nextValue)));
+  if (next === transposeSemitones) return;
+  transposeSemitones = next;
+  updateTransposeReadout();
+  retuneActiveVoices();
 }
 
 function getGain(value) {
@@ -2793,7 +3157,7 @@ function setFilterSeqEditMode(on) {
   if (els.faderModeToggle) {
     els.faderModeToggle.classList.toggle("active", filterSeqEditMode);
     els.faderModeToggle.setAttribute("aria-pressed", String(filterSeqEditMode));
-    els.faderModeToggle.textContent = filterSeqEditMode ? "FADERS SEQ" : "FADERS DRONE";
+    els.faderModeToggle.textContent = filterSeqEditMode ? "SEQ" : "DRONE";
   }
   document.body.classList.toggle("filter-seq-editing", filterSeqEditMode);
   buildMixer();
@@ -2804,6 +3168,11 @@ function setFilterSeqOn(on) {
   if (els.filterSeqToggle) {
     els.filterSeqToggle.classList.toggle("active", filterSeqOn);
     els.filterSeqToggle.setAttribute("aria-pressed", String(filterSeqOn));
+  }
+  if (els.filterSeqMainToggle) {
+    els.filterSeqMainToggle.classList.toggle("active", filterSeqOn);
+    els.filterSeqMainToggle.setAttribute("aria-pressed", String(filterSeqOn));
+    els.filterSeqMainToggle.textContent = filterSeqOn ? "ON" : "OFF";
   }
   document.body.classList.toggle("filter-seq-on", filterSeqOn);
   if (filterSeqOn) {
@@ -3529,6 +3898,92 @@ function setFaderPos(channel, value) {
   channel.querySelector(".vol-readout").textContent = Math.round(value * 100);
 }
 
+function fadeOutVoiceObject(voice, fadeSeconds = 0.28) {
+  if (!voice || !audio) return;
+  const now = audio.currentTime;
+  const fade = Math.max(0.02, fadeSeconds);
+  if (voice.raf) cancelAnimationFrame(voice.raf);
+  try {
+    voice.amp.gain.cancelScheduledValues(now);
+    voice.amp.gain.setValueAtTime(voice.amp.gain.value, now);
+    voice.amp.gain.linearRampToValueAtTime(0, now + fade);
+    setTimeout(() => {
+      try {
+        voice.osc.stop();
+        voice.osc.disconnect();
+        voice.waveGain.disconnect();
+        voice.amp.disconnect();
+        voice.panner.disconnect();
+      } catch {}
+    }, Math.ceil((fade + 0.18) * 1000));
+  } catch {}
+}
+
+function migrateActiveTuning(oldLimit, newLimit) {
+  const oldNotes = tuningDefs[oldLimit]?.notes || [];
+  const newNotes = tuningDefs[newLimit]?.notes || [];
+  if (!oldNotes.length || !newNotes.length) return;
+
+  const newFaderVals = {};
+  Object.entries(faderVals).forEach(([key, value]) => {
+    const [noteIndex, octave] = key.split("_").map(Number);
+    if (Number.isNaN(noteIndex) || Number.isNaN(octave)) {
+      newFaderVals[key] = value;
+      return;
+    }
+    const nextIndex = migrateNoteIndex(noteIndex, oldNotes, newNotes);
+    const nextKey = voiceKey(nextIndex, octave);
+    newFaderVals[nextKey] = Math.max(newFaderVals[nextKey] || 0, value || 0);
+  });
+  Object.keys(faderVals).forEach((key) => delete faderVals[key]);
+  Object.assign(faderVals, newFaderVals);
+
+  const migratedVoices = {};
+  const now = audio ? audio.currentTime : 0;
+  Object.entries(voices).forEach(([key, voice]) => {
+    const [noteIndex, octave] = key.split("_").map(Number);
+    if (Number.isNaN(noteIndex) || Number.isNaN(octave)) {
+      migratedVoices[key] = voice;
+      return;
+    }
+    const nextIndex = migrateNoteIndex(noteIndex, oldNotes, newNotes);
+    const nextKey = voiceKey(nextIndex, octave);
+    const nextNote = newNotes[nextIndex];
+    if (!nextNote) return;
+
+    if (migratedVoices[nextKey]) {
+      fadeOutVoiceObject(voice, 0.28);
+      return;
+    }
+
+    voice.tuning = newLimit;
+    voice.baseFreq = noteFreq(nextNote.r, octave);
+    voice.basePan = pans[nextIndex % pans.length];
+    if (audio && voice.osc) {
+      voice.osc.frequency.cancelScheduledValues(now);
+      voice.osc.frequency.setTargetAtTime(voice.baseFreq, now, 0.045);
+    }
+    if (audio && voice.panner) voice.panner.pan.setTargetAtTime(voice.basePan, now, 0.12);
+    migratedVoices[nextKey] = voice;
+  });
+
+  Object.keys(voices).forEach((key) => delete voices[key]);
+  Object.assign(voices, migratedVoices);
+
+  if (soloActiveIndex !== null) {
+    const nextSoloIndex = migrateNoteIndex(soloActiveIndex, oldNotes, newNotes);
+    soloActiveIndex = nextSoloIndex;
+    const octave = soloAnchor?.octave ?? currentOctave;
+    const note = newNotes[nextSoloIndex];
+    if (note && soloVoice && audio) {
+      const freq = noteFreq(note.r, octave);
+      soloVoice.osc.frequency.cancelScheduledValues(audio.currentTime);
+      soloVoice.osc.frequency.setTargetAtTime(freq, audio.currentTime, 0.045);
+      soloAnchor = { ...(soloAnchor || {}), index: nextSoloIndex, freq, octave };
+    }
+  }
+}
+
 function buildTuningSelect() {
   els.tuning.innerHTML = "";
   tuningGroups.forEach((group) => {
@@ -3544,31 +3999,25 @@ function buildTuningSelect() {
     els.tuning.append(optgroup);
   });
   els.tuning.addEventListener("change", () => {
-    currentLimit = /^\d+$/.test(els.tuning.value) ? Number(els.tuning.value) : els.tuning.value;
+    const oldLimit = currentLimit;
+    const nextLimit = /^\d+$/.test(els.tuning.value) ? Number(els.tuning.value) : els.tuning.value;
+    if (nextLimit === currentLimit) return;
+    currentLimit = nextLimit;
     currentCenterIndex = 0;
     setTheme(currentLimit);
-    releaseAll();
-    stopSolo(true);
+    migrateActiveTuning(oldLimit, currentLimit);
     buildCenterSelect();
     buildMixer();
     buildSoloRoll();
+    updateActiveState();
+    renderFilterSeqHit();
   });
 }
 
 function buildCenterSelect() {
-  els.center.innerHTML = "";
-  currentNotes().forEach((note, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `${note.name} · ${displayRatio(note)}`;
-    option.selected = index === currentCenterIndex;
-    els.center.append(option);
-  });
-  els.center.onchange = () => {
-    currentCenterIndex = Number(els.center.value) || 0;
-    buildMixer();
-    buildSoloRoll();
-  };
+  // Root selection was replaced by 1/1 Transpose.
+  // Keep the harmonic reference at the tuning's 1/1 so ratio relationships stay intact.
+  currentCenterIndex = 0;
 }
 
 function buildOctaves() {
@@ -3760,7 +4209,7 @@ function updateActiveState() {
   const keys = Object.keys(voices);
   const activeText = keys.length ? keys.map((key) => {
     const [noteIndex, octave] = key.split("_").map(Number);
-    const note = tuningDefs[voices[key].tuning]?.notes[noteIndex];
+    const note = tuningDefs[voices[key].tuning]?.notes[noteIndex] || currentNotes()[noteIndex];
     return note ? `${note.name}${octave}` : "?";
   }).join(" · ") : "-";
   if (els.activeBar) {
@@ -4024,12 +4473,15 @@ els.soloVolume.addEventListener("input", () => {
   soloVolume = Number(els.soloVolume.value) || 0;
   if (soloVoice && audio) soloVoice.amp.gain.setTargetAtTime(getGain(0.75) * soloVolume, audio.currentTime, 0.035);
 });
+if (els.transposeDown) els.transposeDown.addEventListener("click", () => setTransposeSemitones(transposeSemitones - 1));
+if (els.transposeUp) els.transposeUp.addEventListener("click", () => setTransposeSemitones(transposeSemitones + 1));
 els.mainVolume.addEventListener("input", updateMainVolume);
 els.droneEchoToggle.addEventListener("click", () => { droneEchoOn = !droneEchoOn; updateEchoRouting(); });
 els.arpEchoToggle.addEventListener("click", () => { arpEchoOn = !arpEchoOn; updateEchoRouting(); });
 els.soloEchoToggle.addEventListener("click", () => { soloEchoOn = !soloEchoOn; updateEchoRouting(); });
 els.faderModeToggle.addEventListener("click", () => setFilterSeqEditMode(!filterSeqEditMode));
 els.filterSeqToggle.addEventListener("click", () => setFilterSeqOn(!filterSeqOn));
+if (els.filterSeqMainToggle) els.filterSeqMainToggle.addEventListener("click", () => setFilterSeqOn(!filterSeqOn));
 els.filterSeqDepth.addEventListener("input", () => {
   filterSeqDepth = Number(els.filterSeqDepth.value) || 0;
   updateFilterSeqReadouts();
@@ -4173,6 +4625,7 @@ els.softRelease.addEventListener("click", softRelease);
 setTheme(currentLimit);
 buildTuningSelect();
 buildCenterSelect();
+updateTransposeReadout();
 buildOctaves();
 buildMixer();
 buildSoloRoll();
