@@ -119,6 +119,52 @@ button {
   letter-spacing: 0.08em;
 }
 
+.control b {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.filter-mode-control input[type="range"] {
+  background:
+    linear-gradient(to right, transparent 0 49%, rgba(143, 138, 123, 0.28) 49% 51%, transparent 51%),
+    transparent;
+}
+
+.filter-mode-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -5px;
+  color: #5f5a50;
+  font-size: 6px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.wave-control input[type="range"] {
+  background:
+    linear-gradient(to right,
+      transparent 0 32%,
+      rgba(143, 138, 123, 0.25) 32% 34%,
+      transparent 34% 65%,
+      rgba(143, 138, 123, 0.25) 65% 67%,
+      transparent 67%),
+    transparent;
+}
+
+.wave-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -5px;
+  color: #5f5a50;
+  font-size: 6px;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 #tuning-select,
 #center-select {
   width: 100%;
@@ -712,6 +758,42 @@ body.filter-seq-editing #mixer {
 
 .release-btn:active {
   background: var(--panel-active);
+  color: var(--accent);
+}
+
+.tape-recorder {
+  display: grid;
+  grid-template-columns: 42px 42px 92px;
+  align-items: stretch;
+  gap: 1px;
+  flex: 0 0 178px;
+  border-right: 1px solid #181818;
+  background: #111;
+}
+
+.tape-recorder button {
+  min-width: 0;
+  border: 0;
+  background: #08080a;
+  color: #777;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.tape-recorder button:disabled {
+  color: #333;
+  cursor: default;
+}
+
+#tape-rec.active {
+  background: #1b0d0d;
+  color: #ff816f;
+  box-shadow: inset 0 -2px 0 #ff816f, 0 0 10px rgba(255, 92, 74, 0.18);
+}
+
+#tape-download.ready {
   color: var(--accent);
 }
 
@@ -3026,6 +3108,137 @@ body.mod-view #toggle-bar #solo-hold {
   }
 }
 
+/* v26: give octave more room; intonation becomes a compact selector. */
+#toggle-bar {
+  grid-template-columns: minmax(84px, 0.72fr) minmax(82px, 100px) minmax(190px, 230px) 48px !important;
+}
+
+#toggle-bar .tuning-inline-control select#tuning-select {
+  font-size: 8px;
+  letter-spacing: 0.03em;
+}
+
+#octaves.octave-control .mini-oct-btn {
+  min-height: 34px;
+  font-size: 9px;
+}
+
+body.mod-view #toggle-bar {
+  grid-template-columns: minmax(112px, 1fr) minmax(82px, 100px) minmax(190px, 230px) 48px !important;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #toggle-bar,
+  body.mod-view #toggle-bar {
+    grid-template-columns: minmax(72px, 0.68fr) minmax(72px, 88px) minmax(156px, 188px) 42px !important;
+  }
+
+  body.mod-view #toggle-bar {
+    grid-template-columns: minmax(90px, 1fr) minmax(72px, 88px) minmax(156px, 188px) 42px !important;
+  }
+
+  #octaves.octave-control .mini-oct-btn {
+    min-height: 27px;
+    font-size: 8px;
+  }
+}
+
+/* v27: right-lock the live performance buttons and normalize their height. */
+#toggle-bar,
+body.mod-view #toggle-bar {
+  grid-template-columns: minmax(72px, 1fr) 102px 252px 58px !important;
+  align-items: end !important;
+  gap: 6px !important;
+}
+
+#toggle-bar .tuning-inline-control {
+  min-width: 0 !important;
+}
+
+#toggle-bar .transpose-control,
+#toggle-bar #octaves.octave-control,
+#toggle-bar #solo-hold {
+  align-self: end !important;
+}
+
+#toggle-bar .transpose-control {
+  grid-template-columns: 26px minmax(42px, 1fr) 26px !important;
+}
+
+#toggle-bar .transpose-control button,
+#toggle-bar .transpose-readout,
+#toggle-bar #octaves.octave-control .mini-oct-btn,
+#toggle-bar #solo-hold,
+body.mod-view #toggle-bar .transpose-control button,
+body.mod-view #toggle-bar .transpose-readout,
+body.mod-view #toggle-bar #octaves.octave-control .mini-oct-btn,
+body.mod-view #toggle-bar #solo-hold {
+  height: 36px !important;
+  min-height: 36px !important;
+}
+
+#toggle-bar #octaves.octave-control {
+  grid-template-rows: 8px 36px !important;
+}
+
+#toggle-bar #octaves.octave-control span {
+  min-height: 8px !important;
+}
+
+body.mod-view #toggle-bar > .mod-seq-controls {
+  grid-column: 1 !important;
+  min-height: 36px !important;
+}
+
+body.mod-view #toggle-bar > .mod-seq-controls .mod-seq-control {
+  min-height: 36px !important;
+}
+
+body.mod-view #toggle-bar .transpose-control {
+  grid-column: 2 !important;
+}
+
+body.mod-view #toggle-bar #octaves.octave-control {
+  grid-column: 3 !important;
+}
+
+body.mod-view #toggle-bar #solo-hold {
+  grid-column: 4 !important;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #toggle-bar,
+  body.mod-view #toggle-bar {
+    grid-template-columns: minmax(64px, 1fr) 88px 206px 48px !important;
+    gap: 4px !important;
+  }
+
+  #toggle-bar .transpose-control {
+    grid-template-columns: 22px minmax(34px, 1fr) 22px !important;
+  }
+
+  #toggle-bar .transpose-control button,
+  #toggle-bar .transpose-readout,
+  #toggle-bar #octaves.octave-control .mini-oct-btn,
+  #toggle-bar #solo-hold,
+  body.mod-view #toggle-bar .transpose-control button,
+  body.mod-view #toggle-bar .transpose-readout,
+  body.mod-view #toggle-bar #octaves.octave-control .mini-oct-btn,
+  body.mod-view #toggle-bar #solo-hold {
+    height: 28px !important;
+    min-height: 28px !important;
+  }
+
+  #toggle-bar #octaves.octave-control {
+    grid-template-rows: 6px 28px !important;
+  }
+
+  body.mod-view #toggle-bar > .mod-seq-controls,
+  body.mod-view #toggle-bar > .mod-seq-controls .mod-seq-control {
+    min-height: 28px !important;
+  }
+}
+
 </style>
   </head>
   <body>
@@ -3079,6 +3292,15 @@ body.mod-view #toggle-bar #solo-hold {
           <label class="master-control">
             <span>Solo Vol</span>
             <input type="range" id="solo-volume" min="0" max="1.35" step="0.001" value="1">
+          </label>
+          <label class="master-control">
+            <span>Solo Voices</span>
+            <select id="solo-voice-limit" aria-label="Solo voice limit">
+              <option value="1">1 Voice</option>
+              <option value="2" selected>2 Voices</option>
+              <option value="3">3 Voices</option>
+              <option value="4">4 Voices</option>
+            </select>
           </label>
           <label class="master-control master-range-readout">
             <span>Rate <b id="adventure-rate-readout">4m 45s</b></span>
@@ -3140,9 +3362,15 @@ body.mod-view #toggle-bar #solo-hold {
         <span>Res</span>
         <input type="range" id="res" min="0" max="0.95" step="0.001" value="0">
       </label>
-      <label class="control">
+      <label class="control filter-mode-control">
+        <span>Mode</span>
+        <input type="range" id="filter-mode" min="0" max="1" step="0.001" value="0" aria-label="Filter mode LPF notch HPF">
+        <div class="filter-mode-labels" aria-hidden="true"><span>LPF</span><span>NOTCH</span><span>HPF</span></div>
+      </label>
+      <label class="control wave-control">
         <span>Wave</span>
         <input type="range" id="mix" min="0" max="1" step="0.001" value="0">
+        <div class="wave-labels" aria-hidden="true"><span>Sine</span><span>Tri</span><span>Saw</span><span>Square</span></div>
       </label>
       <label class="control">
         <span>Wave Shape</span>
@@ -3171,7 +3399,7 @@ body.mod-view #toggle-bar #solo-hold {
       <div class="solo-status"><div id="solo-note-readout" class="solo-title">-</div><div id="delay-value-readout" class="solo-values">wet 32 · lag 42 · div 1/4 · fb 34 · slip 0</div></div>
       <div id="solo-roll" class="solo-roll" aria-label="Solo strip"></div>
     </div>
-    <div id="release-bank"><label class="release-main-volume"><span>Main Vol</span><input type="range" id="main-volume" min="0" max="1" step="0.001" value="0.55"><b id="main-volume-readout">55</b></label><button id="hard-release" class="release-btn" type="button">Hard Release</button><button id="soft-release" class="release-btn" type="button">Soft Release</button></div>
+    <div id="release-bank"><label class="release-main-volume"><span>Main Vol</span><input type="range" id="main-volume" min="0" max="1" step="0.001" value="0.55"><b id="main-volume-readout">55</b></label><div id="tape-recorder" class="tape-recorder" aria-label="Tape WAV export"><button id="tape-rec" type="button">REC</button><button id="tape-stop" type="button" disabled>STOP</button><button id="tape-download" type="button" disabled>Save WAV</button></div><button id="hard-release" class="release-btn" type="button">Hard Release</button><button id="soft-release" class="release-btn" type="button">Soft Release</button></div>
 
 
 
@@ -3508,6 +3736,7 @@ function modVisualTargetMap() {
   return {
     cutoff: { id: "cutoff", base: () => cutoff },
     res: { id: "res", base: () => res },
+    filterMode: { id: "filter-mode", base: () => filterMode },
     wave: { id: "mix", base: () => oscMix },
     waveShape: { id: "wave-shape", base: () => waveShapeControl },
     detune: { id: "drift", base: () => driftControl },
@@ -3549,6 +3778,7 @@ function setSliderVisualValue(id, value, active = false) {
 function restoreBaseControlVisuals() {
   const map = modVisualTargetMap();
   Object.values(map).forEach(({ id }) => setSliderVisualValue(id, 0, false));
+  updateFilterModeReadout();
   modulationVisualsWereActive = false;
 }
 
@@ -3560,6 +3790,7 @@ function updateModulatedControlVisuals() {
     const value = isActive ? finalParamValue(target, config.base()) : config.base();
     setSliderVisualValue(config.id, value, isActive);
   });
+  updateFilterModeReadout();
   modulationVisualsWereActive = activeTargets.size > 0;
 }
 
@@ -3614,20 +3845,22 @@ function applyContinuousModulation(nowMs = performance.now()) {
     updatePitchFineModulation(audio ? audio.currentTime : nowMs / 1000);
   }
   if (!modulationLastMs || nowMs - modulationLastMs >= modulationUpdateMs) {
+    const deltaMs = modulationLastMs ? nowMs - modulationLastMs : modulationUpdateMs;
     modulationLastMs = nowMs;
     if (anyModulationOn()) {
       const modTimeSeconds = audio ? audio.currentTime : nowMs / 1000;
       updateTransposeModulation(modTimeSeconds);
       updateFilter(0.035);
       updateDelay();
-      const wave = finalParamValue("wave", oscMix);
-      const shape = finalParamValue("waveShape", waveShapeControl);
-      Object.values(voices).forEach((voice) => applyVoiceMorph(voice, wave, shape));
-      soloVoices.forEach((voice) => applyVoiceMorph(voice, wave, shape));
+      smoothedWaveMix = smoothModValue(smoothedWaveMix, finalParamValue("wave", oscMix), deltaMs);
+      smoothedWaveShape = smoothModValue(smoothedWaveShape, finalParamValue("waveShape", waveShapeControl), deltaMs);
+      applyWaveMorphToActiveVoices(smoothedWaveMix, smoothedWaveShape);
       driftAmount = finalParamValue("detune", driftControl) * detuneMax;
       dreamHouseAmount = finalParamValue("wander", dreamHouseControl) * wanderMax;
       updateModulatedControlVisuals();
     } else if (modulationVisualsWereActive) {
+      smoothedWaveMix = oscMix;
+      smoothedWaveShape = waveShapeControl;
       if (transposeModSemitones !== 0) {
         transposeModSemitones = 0;
         retuneActiveVoices();
@@ -3782,8 +4015,10 @@ function buildModSeqFaders() {
 function wireModSeqFader(channel, key) {
   const wrap = channel.querySelector(".fader-wrap");
   let dragging = false;
+  let suppressClick = false;
   let startY = 0;
   let startVal = 0;
+  let dragMoved = false;
   function moveTo(y) {
     const trackHeight = Math.max(40, wrap.clientHeight - 24);
     const value = clamp01(startVal + (startY - y) / trackHeight);
@@ -3799,6 +4034,8 @@ function wireModSeqFader(channel, key) {
     event.preventDefault();
     resumeAudio();
     dragging = true;
+    suppressClick = false;
+    dragMoved = false;
     startY = event.clientY;
     startVal = channel.value;
     wrap.setPointerCapture(event.pointerId);
@@ -3806,11 +4043,30 @@ function wireModSeqFader(channel, key) {
   wrap.addEventListener("pointermove", (event) => {
     if (!dragging) return;
     event.preventDefault();
+    if (Math.abs(event.clientY - startY) > 3) dragMoved = true;
     moveTo(event.clientY);
   });
-  wrap.addEventListener("pointerup", () => { dragging = false; });
-  wrap.addEventListener("pointercancel", () => { dragging = false; });
+  wrap.addEventListener("pointerup", (event) => {
+    if (dragging) {
+      if (dragMoved) {
+        event.preventDefault();
+        suppressClick = true;
+        moveTo(event.clientY);
+      }
+      dragging = false;
+    }
+  });
+  wrap.addEventListener("pointercancel", () => {
+    dragging = false;
+    suppressClick = dragMoved;
+  });
   wrap.addEventListener("click", (event) => {
+    if (suppressClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClick = false;
+      return;
+    }
     const rect = wrap.getBoundingClientRect();
     startY = rect.bottom - 12;
     startVal = 0;
@@ -3978,6 +4234,10 @@ let audio;
 let master;
 let finalLimiter;
 let limiterTrim;
+let tapeRecorderNode;
+let tapeRecorderSink;
+let tapeRecorderSetupPromise = null;
+let tapeRecorderUsesPort = false;
 let filterBus;
 let shaper;
 let svf;
@@ -4018,8 +4278,11 @@ let transposeSemitones = 0;
 let transposeModSemitones = 0;
 let cutoff = 1;
 let res = 0;
+let filterMode = 0;
 let oscMix = 0;
 let waveShapeControl = 0.5;
+let smoothedWaveMix = 0;
+let smoothedWaveShape = 0.5;
 let driftControl = 0;
 let dreamHouseControl = 0;
 let detuneMax = 2;
@@ -4028,6 +4291,7 @@ let detuneRate = 1;
 let wanderRate = 1;
 let mainVolume = 0.55;
 let soloVolume = 1;
+let soloVoiceLimit = 2;
 let droneEchoOn = false;
 let arpEchoOn = true;
 let soloEchoOn = false;
@@ -4044,7 +4308,7 @@ let selectedSeqLfoIndex = 0;
 let appView = "play";
 let modulationLoopRaf = null;
 let modulationLastMs = 0;
-const modulationUpdateMs = 45;
+const modulationUpdateMs = 16;
 let modulationVisualsWereActive = false;
 const heldModVisualIds = new Set();
 let currentPitchFineCents = 0;
@@ -4052,6 +4316,7 @@ const pitchFineCentsRange = 50;
 const modDestinations = [
   ["cutoff", "Cutoff"],
   ["res", "Res"],
+  ["filterMode", "Filter Mode"],
   ["wave", "Wave"],
   ["waveShape", "Wave Shape"],
   ["detune", "Detune"],
@@ -4187,6 +4452,8 @@ const els = {
   faderModeToggle: document.querySelector("#fader-mode-toggle"),
   mixer: document.querySelector("#mixer"),
   activeBar: document.querySelector("#active-bar"),
+  filterMode: document.querySelector("#filter-mode"),
+  filterModeReadout: document.querySelector("#filter-mode-readout"),
   soloRoll: document.querySelector("#solo-roll"),
   soloNoteReadout: document.querySelector("#solo-note-readout"),
   soloHold: document.querySelector("#solo-hold"),
@@ -4208,8 +4475,12 @@ const els = {
   arpSlip: document.querySelector("#arp-slip"),
   arpVolume: document.querySelector("#arp-volume"),
   soloVolume: document.querySelector("#solo-volume"),
+  soloVoiceLimit: document.querySelector("#solo-voice-limit"),
   mainVolume: document.querySelector("#main-volume"),
   mainVolumeReadout: document.querySelector("#main-volume-readout"),
+  tapeRec: document.querySelector("#tape-rec"),
+  tapeStop: document.querySelector("#tape-stop"),
+  tapeDownload: document.querySelector("#tape-download"),
   droneEchoToggle: document.querySelector("#drone-echo-toggle"),
   arpEchoToggle: document.querySelector("#arp-echo-toggle"),
   soloEchoToggle: document.querySelector("#solo-echo-toggle"),
@@ -4237,6 +4508,82 @@ Object.values(tuningDefs).forEach((t) => {
   t.notes = t.notes.map(([name, n, d, label]) => ({ name, r: [n, d], label }));
 });
 
+const tapeRecorderWorkletCode = `
+class AlbionTapeRecorderProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.recording = false;
+    this.left = [];
+    this.right = [];
+    this.frames = 0;
+    this.chunkSize = 8192;
+    this.port.onmessage = (event) => {
+      const data = event.data || {};
+      if (data.type === "start") {
+        this.recording = true;
+        this.left = [];
+        this.right = [];
+        this.frames = 0;
+      } else if (data.type === "stop") {
+        this.flush();
+        this.recording = false;
+        this.port.postMessage({ type: "stopped" });
+      }
+    };
+  }
+
+  flush() {
+    if (!this.frames) return;
+    const left = new Float32Array(this.frames);
+    const right = new Float32Array(this.frames);
+    let offset = 0;
+    for (let i = 0; i < this.left.length; i += 1) {
+      left.set(this.left[i], offset);
+      right.set(this.right[i], offset);
+      offset += this.left[i].length;
+    }
+    this.port.postMessage({ type: "audio", left, right }, [left.buffer, right.buffer]);
+    this.left = [];
+    this.right = [];
+    this.frames = 0;
+  }
+
+  process(inputs, outputs) {
+    const input = inputs[0] || [];
+    const output = outputs[0] || [];
+    const leftIn = input[0];
+    const rightIn = input[1] || leftIn;
+
+    // This node is a recorder tap only. Keep the output silent so connecting
+    // it to the destination forces processing without changing the audible mix.
+    if (output[0]) output[0].fill(0);
+    if (output[1]) output[1].fill(0);
+
+    if (this.recording && leftIn) {
+      const left = new Float32Array(leftIn.length);
+      const right = new Float32Array(leftIn.length);
+      left.set(leftIn);
+      right.set(rightIn || leftIn);
+      this.left.push(left);
+      this.right.push(right);
+      this.frames += left.length;
+      if (this.frames >= this.chunkSize) this.flush();
+    }
+
+    return true;
+  }
+}
+registerProcessor("albion-tape-recorder", AlbionTapeRecorderProcessor);
+`;
+
+const tapeRecorderState = {
+  isRecording: false,
+  chunks: [],
+  sampleRate: 48000,
+  lastBlob: null,
+  lastUrl: null,
+  lastFilename: ""
+};
 
 const tptSvfWorkletCode = `
 class Arp2600FilterProcessor extends AudioWorkletProcessor {
@@ -4247,6 +4594,7 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
       { name: "lfoRate", defaultValue: 0.02, minValue: 0, maxValue: 20, automationRate: "k-rate" },
       { name: "lfoDepth", defaultValue: 0, minValue: 0, maxValue: 1, automationRate: "k-rate" },
       { name: "lfoShape", defaultValue: 0, minValue: 0, maxValue: 1, automationRate: "k-rate" },
+      { name: "filterMode", defaultValue: 0, minValue: 0, maxValue: 1, automationRate: "k-rate" },
       { name: "drive", defaultValue: 0.05, minValue: 0, maxValue: 1, automationRate: "k-rate" }
     ];
   }
@@ -4257,6 +4605,11 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
       [0, 0, 0, 0],
       [0, 0, 0, 0]
     ];
+    this.hpStage = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0]
+    ];
+    this.modeSmooth = 0;
     this.lfoPhase = 0;
     this.port.onmessage = (event) => {
       if (event.data && event.data.type === "resetLfo") this.lfoPhase = 0;
@@ -4265,6 +4618,11 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
 
   mix(a, b, t) {
     return a + (b - a) * t;
+  }
+
+  equalPower(a, b, t) {
+    const x = Math.max(0, Math.min(1, t));
+    return a * Math.cos(x * Math.PI * 0.5) + b * Math.sin(x * Math.PI * 0.5);
   }
 
   shapedLfo(phase, shape) {
@@ -4290,6 +4648,7 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
     const lfoRate = Math.max(0, parameters.lfoRate[0]);
     const lfoDepth = Math.max(0, Math.min(1, parameters.lfoDepth[0]));
     const lfoShape = Math.max(0, Math.min(1, parameters.lfoShape[0]));
+    const filterMode = Math.max(0, Math.min(1, parameters.filterMode[0]));
     const drive = Math.max(0, Math.min(1, parameters.drive[0]));
     const sr = sampleRate;
     const maxCutoff = Math.min(15000, sr * 0.34);
@@ -4307,6 +4666,7 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
       const x = input[ch] || input[0];
       const y = output[ch];
       const s = this.stage[ch] || [0, 0, 0, 0];
+      const hs = this.hpStage[ch] || [0, 0, 0, 0];
 
       for (let i = 0; i < y.length; i += 1) {
         const lfo = this.shapedLfo(this.lfoPhase, lfoShape);
@@ -4329,11 +4689,26 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
         s[2] += g * (s[1] - s[2]);
         s[3] += g * (s[2] - s[3]);
 
+        let hpInput = driven;
+        for (let j = 0; j < 4; j += 1) {
+          hs[j] += g * (hpInput - hs[j]);
+          hpInput -= hs[j];
+        }
+
         // Leak tiny DC and hard safety clamp internal states.
         s[0] *= 0.999999; s[1] *= 0.999999; s[2] *= 0.999999; s[3] *= 0.999999;
         for (let j = 0; j < 4; j += 1) s[j] = Math.max(-8, Math.min(8, s[j]));
+        hs[0] *= 0.999999; hs[1] *= 0.999999; hs[2] *= 0.999999; hs[3] *= 0.999999;
+        for (let j = 0; j < 4; j += 1) hs[j] = Math.max(-8, Math.min(8, hs[j]));
 
-        y[i] = Math.max(-1, Math.min(1, s[3] * resonanceComp));
+        this.modeSmooth += (filterMode - this.modeSmooth) * 0.0016;
+        const lp = s[3] * resonanceComp;
+        const hp = hpInput * (0.72 + resNorm * 0.16);
+        const notch = (lp + hp) * 0.78;
+        const modeOut = this.modeSmooth < 0.5
+          ? this.equalPower(lp, notch, this.modeSmooth * 2)
+          : this.equalPower(notch, hp, (this.modeSmooth - 0.5) * 2);
+        y[i] = Math.max(-1, Math.min(1, modeOut));
 
         if (ch === 0) {
           this.lfoPhase += 2 * Math.PI * lfoRate / sr;
@@ -4342,6 +4717,7 @@ class Arp2600FilterProcessor extends AudioWorkletProcessor {
       }
 
       this.stage[ch] = s;
+      this.hpStage[ch] = hs;
     }
 
     for (let ch = channels; ch < output.length; ch += 1) {
@@ -4376,9 +4752,15 @@ async function createTptSvfNode(context) {
 function createScriptTptSvfNode(context) {
   const node = context.createScriptProcessor(1024, 2, 2);
   const state = [[0, 0, 0, 0], [0, 0, 0, 0]];
-  const params = { cutoff: 12000, q: 0.6, lfoRate: 0.02, lfoDepth: 0, lfoShape: 0, drive: 0.05 };
+  const hpState = [[0, 0, 0, 0], [0, 0, 0, 0]];
+  const params = { cutoff: 12000, q: 0.6, lfoRate: 0.02, lfoDepth: 0, lfoShape: 0, filterMode: 0, drive: 0.05 };
   let lfoPhase = 0;
+  let modeSmooth = 0;
   const mixLfoShape = (a, b, t) => a + (b - a) * t;
+  const equalPower = (a, b, t) => {
+    const x = Math.max(0, Math.min(1, t));
+    return a * Math.cos(x * Math.PI * 0.5) + b * Math.sin(x * Math.PI * 0.5);
+  };
   const shapedLfo = (phase, shape) => {
     const p = phase / (Math.PI * 2);
     const wrap = p - Math.floor(p);
@@ -4410,6 +4792,7 @@ function createScriptTptSvfNode(context) {
       const x = input.getChannelData(Math.min(ch, input.numberOfChannels - 1));
       const y = output.getChannelData(ch);
       const s = state[ch] || [0, 0, 0, 0];
+      const hs = hpState[ch] || [0, 0, 0, 0];
       for (let i = 0; i < y.length; i += 1) {
         const lfo = shapedLfo(lfoPhase, params.lfoShape);
         const depth = Math.max(0, Math.min(1, params.lfoDepth));
@@ -4426,15 +4809,30 @@ function createScriptTptSvfNode(context) {
         s[1] += g * (s[0] - s[1]);
         s[2] += g * (s[1] - s[2]);
         s[3] += g * (s[2] - s[3]);
+        let hpInput = driven;
+        for (let j = 0; j < 4; j += 1) {
+          hs[j] += g * (hpInput - hs[j]);
+          hpInput -= hs[j];
+        }
         s[0] *= 0.999999; s[1] *= 0.999999; s[2] *= 0.999999; s[3] *= 0.999999;
         for (let j = 0; j < 4; j += 1) s[j] = Math.max(-8, Math.min(8, s[j]));
-        y[i] = Math.max(-1, Math.min(1, s[3] * resonanceComp));
+        hs[0] *= 0.999999; hs[1] *= 0.999999; hs[2] *= 0.999999; hs[3] *= 0.999999;
+        for (let j = 0; j < 4; j += 1) hs[j] = Math.max(-8, Math.min(8, hs[j]));
+        modeSmooth += (Math.max(0, Math.min(1, params.filterMode)) - modeSmooth) * 0.0016;
+        const lp = s[3] * resonanceComp;
+        const hp = hpInput * (0.72 + resNorm * 0.16);
+        const notch = (lp + hp) * 0.78;
+        const modeOut = modeSmooth < 0.5
+          ? equalPower(lp, notch, modeSmooth * 2)
+          : equalPower(notch, hp, (modeSmooth - 0.5) * 2);
+        y[i] = Math.max(-1, Math.min(1, modeOut));
         if (ch === 0) {
           lfoPhase += 2 * Math.PI * Math.max(0, params.lfoRate) / sr;
           if (lfoPhase > Math.PI * 2) lfoPhase -= Math.PI * 2;
         }
       }
       state[ch] = s;
+      hpState[ch] = hs;
     }
   };
   return node;
@@ -4453,6 +4851,208 @@ function setSvfParam(name, value, timeConstant = 0.03) {
   // Keep the main filter and the post-filter echo-send filters locked together.
   // Drone/Solo echo routing is now: source → matched filter → delay → output.
   [svf, droneEchoFilter, soloEchoFilter].forEach((node) => setFilterNodeParam(node, name, value, timeConstant));
+}
+
+async function createTapeRecorderNode(context) {
+  if (!context.audioWorklet || !window.AudioWorkletNode) return null;
+  try {
+    const blob = new Blob([tapeRecorderWorkletCode], { type: "application/javascript" });
+    const url = URL.createObjectURL(blob);
+    await context.audioWorklet.addModule(url);
+    URL.revokeObjectURL(url);
+    return new AudioWorkletNode(context, "albion-tape-recorder", {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      outputChannelCount: [2]
+    });
+  } catch (err) {
+    console.warn("Tape recorder AudioWorklet unavailable.", err);
+    return null;
+  }
+}
+
+function connectTapeRecorderTap() {
+  if (!audio || !limiterTrim || tapeRecorderNode) return Promise.resolve(tapeRecorderNode);
+  if (tapeRecorderSetupPromise) return tapeRecorderSetupPromise;
+  tapeRecorderSetupPromise = Promise.resolve().then(() => {
+    if (!audio || !limiterTrim || tapeRecorderNode) return tapeRecorderNode;
+    // Use a plain recorder tap here because the preview/file browser can starve
+    // a silent AudioWorklet branch. This branch outputs silence and cannot alter
+    // the audible master path.
+    const bufferSize = 4096;
+    const node = audio.createScriptProcessor(bufferSize, 2, 2);
+    node.onaudioprocess = (event) => {
+      const output = event.outputBuffer;
+      for (let ch = 0; ch < output.numberOfChannels; ch += 1) {
+        output.getChannelData(ch).fill(0);
+      }
+      if (!tapeRecorderState.isRecording) return;
+      const input = event.inputBuffer;
+      const leftIn = input.getChannelData(0);
+      const rightIn = input.numberOfChannels > 1 ? input.getChannelData(1) : leftIn;
+      const left = new Float32Array(leftIn.length);
+      const right = new Float32Array(rightIn.length);
+      left.set(leftIn);
+      right.set(rightIn);
+      tapeRecorderState.chunks.push({ left, right });
+    };
+    tapeRecorderSink = audio.createGain();
+    tapeRecorderSink.gain.value = 1;
+    tapeRecorderNode = node;
+    tapeRecorderUsesPort = false;
+    limiterTrim.connect(tapeRecorderNode);
+    tapeRecorderNode.connect(tapeRecorderSink);
+    tapeRecorderSink.connect(audio.destination);
+    return tapeRecorderNode;
+  });
+  return tapeRecorderSetupPromise;
+}
+
+function updateTapeRecorderUi() {
+  if (!els.tapeRec || !els.tapeStop || !els.tapeDownload) return;
+  els.tapeRec.classList.toggle("active", tapeRecorderState.isRecording);
+  els.tapeRec.disabled = tapeRecorderState.isRecording;
+  els.tapeStop.disabled = !tapeRecorderState.isRecording;
+  els.tapeDownload.disabled = tapeRecorderState.isRecording || !tapeRecorderState.lastBlob;
+  els.tapeDownload.classList.toggle("ready", Boolean(tapeRecorderState.lastBlob) && !tapeRecorderState.isRecording);
+}
+
+function handleTapeRecorderMessage(event) {
+  const data = event.data || {};
+  if (data.type === "audio" && data.left && data.right) {
+    tapeRecorderState.chunks.push({ left: data.left, right: data.right });
+  } else if (data.type === "stopped") {
+    setTimeout(finishTapeRecording, 0);
+  }
+}
+
+function tapeTimestamp(date = new Date()) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+}
+
+function encodeTapeWav(chunks, sampleRate) {
+  const totalFrames = chunks.reduce((sum, chunk) => sum + chunk.left.length, 0);
+  const bytesPerSample = 2;
+  const channels = 2;
+  const dataBytes = totalFrames * channels * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + dataBytes);
+  const view = new DataView(buffer);
+  let offset = 0;
+  const writeString = (text) => {
+    for (let i = 0; i < text.length; i += 1) view.setUint8(offset + i, text.charCodeAt(i));
+    offset += text.length;
+  };
+  writeString("RIFF");
+  view.setUint32(offset, 36 + dataBytes, true); offset += 4;
+  writeString("WAVE");
+  writeString("fmt ");
+  view.setUint32(offset, 16, true); offset += 4;
+  view.setUint16(offset, 1, true); offset += 2;
+  view.setUint16(offset, channels, true); offset += 2;
+  view.setUint32(offset, sampleRate, true); offset += 4;
+  view.setUint32(offset, sampleRate * channels * bytesPerSample, true); offset += 4;
+  view.setUint16(offset, channels * bytesPerSample, true); offset += 2;
+  view.setUint16(offset, 16, true); offset += 2;
+  writeString("data");
+  view.setUint32(offset, dataBytes, true); offset += 4;
+
+  chunks.forEach((chunk) => {
+    for (let i = 0; i < chunk.left.length; i += 1) {
+      const left = Math.max(-1, Math.min(1, chunk.left[i] || 0));
+      const right = Math.max(-1, Math.min(1, chunk.right[i] || 0));
+      view.setInt16(offset, left < 0 ? left * 0x8000 : left * 0x7fff, true); offset += 2;
+      view.setInt16(offset, right < 0 ? right * 0x8000 : right * 0x7fff, true); offset += 2;
+    }
+  });
+
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+function triggerTapeDownload() {
+  if (!tapeRecorderState.lastBlob) return;
+  if (tapeRecorderState.lastUrl) URL.revokeObjectURL(tapeRecorderState.lastUrl);
+  const url = URL.createObjectURL(tapeRecorderState.lastBlob);
+  tapeRecorderState.lastUrl = url;
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = tapeRecorderState.lastFilename || `albion ${tapeTimestamp()}.wav`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => {
+    if (tapeRecorderState.lastUrl === url) {
+      URL.revokeObjectURL(url);
+      tapeRecorderState.lastUrl = null;
+    }
+  }, 30000);
+}
+
+async function saveTapeWav() {
+  if (!tapeRecorderState.lastBlob) return;
+  const filename = tapeRecorderState.lastFilename || `albion ${tapeTimestamp()}.wav`;
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{
+          description: "WAV audio",
+          accept: { "audio/wav": [".wav"] }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(tapeRecorderState.lastBlob);
+      await writable.close();
+      return;
+    } catch (err) {
+      if (err && err.name === "AbortError") return;
+      console.warn("Save picker unavailable; falling back to browser download.", err);
+    }
+  }
+  triggerTapeDownload();
+}
+
+async function startTapeRecording() {
+  if (tapeRecorderState.isRecording) return;
+  await resumeAudio();
+  await connectTapeRecorderTap();
+  if (!tapeRecorderNode || !audio) return;
+  if (tapeRecorderState.lastUrl) {
+    URL.revokeObjectURL(tapeRecorderState.lastUrl);
+    tapeRecorderState.lastUrl = null;
+  }
+  tapeRecorderState.isRecording = true;
+  tapeRecorderState.chunks = [];
+  tapeRecorderState.lastBlob = null;
+  tapeRecorderState.lastFilename = "";
+  tapeRecorderState.sampleRate = Math.round(audio.sampleRate || 48000);
+  if (tapeRecorderUsesPort && tapeRecorderNode.port) tapeRecorderNode.port.postMessage({ type: "start" });
+  updateTapeRecorderUi();
+}
+
+function stopTapeRecording() {
+  if (!tapeRecorderState.isRecording || !tapeRecorderNode) return;
+  tapeRecorderState.isRecording = false;
+  if (tapeRecorderUsesPort && tapeRecorderNode.port) {
+    tapeRecorderNode.port.postMessage({ type: "stop" });
+  } else {
+    setTimeout(finishTapeRecording, 0);
+  }
+  updateTapeRecorderUi();
+}
+
+function finishTapeRecording() {
+  const recordedFrames = tapeRecorderState.chunks.reduce((sum, chunk) => sum + chunk.left.length, 0);
+  if (!recordedFrames) {
+    tapeRecorderState.lastBlob = null;
+    updateTapeRecorderUi();
+    return;
+  }
+  tapeRecorderState.lastBlob = encodeTapeWav(tapeRecorderState.chunks, tapeRecorderState.sampleRate);
+  tapeRecorderState.lastFilename = `albion ${tapeTimestamp()}.wav`;
+  tapeRecorderState.chunks = [];
+  updateTapeRecorderUi();
+  triggerTapeDownload();
 }
 
 function resetSingleFilterLfo(node) {
@@ -4530,6 +5130,7 @@ async function setupAudio() {
     master.connect(finalLimiter);
     finalLimiter.connect(limiterTrim);
     limiterTrim.connect(audio.destination);
+    connectTapeRecorderTap();
 
     delaySend.gain.value = 0.25 + timeLag * 0.75;
     delayDry.gain.value = 1;
@@ -4789,6 +5390,18 @@ function analogSawCoeff(n, profile, shape = 0.5) {
   return (sign / n) * Math.exp(-n * darkTilt) * (1 / (1 + Math.pow(n / knee, 2) * kneeAmount)) * bite * lowBias * contour * presence;
 }
 
+function pulseCoeffs(n, shape = 0.5) {
+  const s = clamp01(shape);
+  const duty = 0.5 + (s - 0.5) * 0.78;
+  const tilt = 0.0015 + Math.abs(s - 0.5) * 0.006;
+  const contour = Math.exp(-n * tilt) * (1 / (1 + Math.pow(n / 92, 2) * 0.18));
+  const scale = 1.18 * contour;
+  return {
+    real: (2 / (Math.PI * n)) * Math.sin(2 * Math.PI * n * duty) * scale,
+    imag: (2 / (Math.PI * n)) * (1 - Math.cos(2 * Math.PI * n * duty)) * scale
+  };
+}
+
 function getMorphWave(mix, profile, shape = waveShapeControl) {
   const q = Math.round(Math.max(0, Math.min(1, mix)) * 1000) / 1000;
   const s = Math.round(clamp01(shape) * 1000) / 1000;
@@ -4799,12 +5412,17 @@ function getMorphWave(mix, profile, shape = waveShapeControl) {
   const imag = new Float32Array(harmonics + 1);
   for (let n = 1; n <= harmonics; n += 1) {
     let coeff;
-    if (q <= 0.5) {
-      const t = q / 0.5;
+    if (q <= 1 / 3) {
+      const t = q / (1 / 3);
       coeff = (n === 1 ? 1 : 0) * (1 - t) + shapedTriangleCoeff(n, s) * t;
-    } else {
-      const t = (q - 0.5) / 0.5;
+    } else if (q <= 2 / 3) {
+      const t = (q - 1 / 3) / (1 / 3);
       coeff = shapedTriangleCoeff(n, s) * (1 - t) + analogSawCoeff(n, profile, s) * t;
+    } else {
+      const t = (q - 2 / 3) / (1 / 3);
+      const pulse = pulseCoeffs(n, s);
+      coeff = analogSawCoeff(n, profile, s) * (1 - t) + pulse.imag * t;
+      real[n] = pulse.real * t;
     }
     imag[n] = coeff;
   }
@@ -4814,11 +5432,17 @@ function getMorphWave(mix, profile, shape = waveShapeControl) {
 }
 
 function morphGainComp(mix) {
-  return mix <= 0.5 ? 1 - (mix / 0.5) * 0.08 : 0.92 - ((mix - 0.5) / 0.5) * 0.18;
+  const q = clamp01(mix);
+  if (q <= 1 / 3) return 1 - (q / (1 / 3)) * 0.08;
+  if (q <= 2 / 3) return 0.92 - ((q - 1 / 3) / (1 / 3)) * 0.18;
+  return 0.74 - ((q - 2 / 3) / (1 / 3)) * 0.06;
 }
 
 function applyVoiceMorph(voice, mix, shape = waveShapeControl) {
   if (!voice || !audio) return;
+  const morphKey = `${Math.round(clamp01(mix) * 1000)}_${Math.round(clamp01(shape) * 1000)}`;
+  if (voice.morphKey === morphKey) return;
+  voice.morphKey = morphKey;
   voice.osc.setPeriodicWave(getMorphWave(mix, voice.oscProfile, shape));
   voice.waveGain.gain.setTargetAtTime(morphGainComp(mix), audio.currentTime, 0.08);
 }
@@ -4831,6 +5455,17 @@ function currentWaveShape() {
   return finalParamValue("waveShape", waveShapeControl);
 }
 
+function smoothModValue(current, target, deltaMs, timeConstantMs = 115) {
+  const dt = Math.max(1, Math.min(80, deltaMs || 16));
+  const amount = 1 - Math.exp(-dt / Math.max(1, timeConstantMs));
+  return current + (target - current) * amount;
+}
+
+function applyWaveMorphToActiveVoices(wave, shape) {
+  Object.values(voices).forEach((voice) => applyVoiceMorph(voice, wave, shape));
+  soloVoices.forEach((voice) => applyVoiceMorph(voice, wave, shape));
+}
+
 function effectiveCutoffControl() {
   if (!filterSeqOn) return cutoff;
   const depth = Math.max(0, Math.min(1, filterSeqDepth));
@@ -4839,6 +5474,18 @@ function effectiveCutoffControl() {
   // The front-panel Cutoff remains the ceiling/base, so lowering Cutoff still closes
   // the whole sequenced filter pattern instead of the sequencer overriding it.
   return Math.max(0.001, Math.min(1, cutoff * (1 - depth + step * depth)));
+}
+
+function filterModeLabel(value = filterMode) {
+  const v = clamp01(value);
+  if (v < 0.17) return "LPF";
+  if (v > 0.83) return "HPF";
+  if (Math.abs(v - 0.5) < 0.12) return "NOTCH";
+  return v < 0.5 ? "LPF→NOTCH" : "NOTCH→HPF";
+}
+
+function updateFilterModeReadout() {
+  if (els.filterModeReadout) els.filterModeReadout.textContent = filterModeLabel(finalParamValue("filterMode", filterMode));
 }
 
 function updateFilter(timeConstantOverride = null) {
@@ -4851,6 +5498,7 @@ function updateFilter(timeConstantOverride = null) {
   setSvfParam("cutoff", currentFilterFc, filterTime);
   const resControl = finalParamValue("res", res);
   setSvfParam("q", 0.6 + resControl * 3.8, 0.04);
+  setSvfParam("filterMode", finalParamValue("filterMode", filterMode), 0.08);
   setSvfParam("lfoRate", lfoRate, 0.02);
   setSvfParam("lfoDepth", lfoDepth, 0.04);
   setSvfParam("lfoShape", lfoShape, 0.04);
@@ -5406,11 +6054,57 @@ function refreshSoloKeyActiveClasses() {
   document.querySelectorAll(".solo-key").forEach((key, index) => key.classList.toggle("active", activeIndexes.has(index)));
 }
 
+function updateSoloVoiceLimitControl() {
+  if (!els.soloVoiceLimit) return;
+  els.soloVoiceLimit.value = String(soloVoiceLimit);
+}
+
+function releaseSoloVoice(id, force = false) {
+  const voice = soloVoices.get(id);
+  if (!voice || !audio) return;
+  const now = audio.currentTime;
+  if (voice.releaseTimer) clearTimeout(voice.releaseTimer);
+  voice.amp.gain.cancelScheduledValues(now);
+  voice.amp.gain.setValueAtTime(voice.amp.gain.value, now);
+  voice.amp.gain.setTargetAtTime(0, now, force ? 0.02 : 0.7);
+  soloActiveIndexes.delete(id);
+  soloAnchors.delete(id);
+  activeSoloPointers.delete(id);
+  soloVoices.delete(id);
+  if (soloVoice === voice) soloVoice = soloVoices.values().next().value || null;
+  voice.releaseTimer = setTimeout(() => {
+    try {
+      voice.osc.stop();
+      voice.osc.disconnect();
+      voice.waveGain.disconnect();
+      voice.amp.disconnect();
+      voice.panner.disconnect();
+    } catch {}
+  }, force ? 80 : 2960);
+}
+
+function enforceSoloVoiceLimit(preferredId = null) {
+  const limit = Math.max(1, Math.min(4, Math.round(soloVoiceLimit) || 1));
+  while (soloVoices.size > limit) {
+    const ids = Array.from(soloVoices.keys());
+    const victim = ids.find((id) => id !== preferredId && !activeSoloPointers.has(id)) || ids.find((id) => id !== preferredId) || ids[0];
+    if (victim === undefined) break;
+    releaseSoloVoice(victim, true);
+  }
+  soloActiveIndex = soloActiveIndexes.size ? Array.from(soloActiveIndexes.values()).slice(-1)[0] : null;
+  refreshSoloKeyActiveClasses();
+}
+
 function ensureSoloVoice(freq, pointerId = "primary") {
   if (soloVoices.has(pointerId)) return soloVoices.get(pointerId);
   setupAudio();
   resumeAudio();
   if (!audio || !filterBus) return null;
+  enforceSoloVoiceLimit(pointerId);
+  if (soloVoices.size >= soloVoiceLimit) {
+    const victim = Array.from(soloVoices.keys()).find((id) => id !== pointerId && !activeSoloPointers.has(id)) || Array.from(soloVoices.keys()).find((id) => id !== pointerId);
+    if (victim !== undefined) releaseSoloVoice(victim, true);
+  }
   const amp = audio.createGain();
   const waveGain = audio.createGain();
   const panner = audio.createStereoPanner();
@@ -5420,7 +6114,9 @@ function ensureSoloVoice(freq, pointerId = "primary") {
   const shape = currentWaveShape();
   amp.gain.value = 0;
   waveGain.gain.value = morphGainComp(wave);
-  panner.pan.value = soloVoices.size === 0 ? -0.18 : 0.18;
+  const limit = Math.max(1, Math.min(4, Math.round(soloVoiceLimit) || 1));
+  const voiceSlot = Math.min(limit - 1, soloVoices.size);
+  panner.pan.value = limit === 1 ? 0 : -0.34 + (voiceSlot / Math.max(1, limit - 1)) * 0.68;
   osc.frequency.value = freq;
   osc.setPeriodicWave(getMorphWave(wave, oscProfile, shape));
   osc.connect(waveGain);
@@ -5453,29 +6149,7 @@ function startSoloTarget(target, pointerId = "primary") {
 
 function stopSolo(force = false, pointerId = null) {
   const ids = pointerId === null ? Array.from(soloVoices.keys()) : [pointerId];
-  ids.forEach((id) => {
-    const voice = soloVoices.get(id);
-    if (!voice || !audio) return;
-    const now = audio.currentTime;
-    if (voice.releaseTimer) clearTimeout(voice.releaseTimer);
-    voice.amp.gain.cancelScheduledValues(now);
-    voice.amp.gain.setValueAtTime(voice.amp.gain.value, now);
-    voice.amp.gain.setTargetAtTime(0, now, force ? 0.02 : 0.7);
-    soloActiveIndexes.delete(id);
-    soloAnchors.delete(id);
-    voice.releaseTimer = setTimeout(() => {
-      try {
-        voice.osc.stop();
-        voice.osc.disconnect();
-        voice.waveGain.disconnect();
-        voice.amp.disconnect();
-        voice.panner.disconnect();
-      } catch {}
-      soloVoices.delete(id);
-      if (soloVoice === voice) soloVoice = soloVoices.values().next().value || null;
-      refreshSoloKeyActiveClasses();
-    }, force ? 80 : 2960);
-  });
+  ids.forEach((id) => releaseSoloVoice(id, force));
   soloActiveIndex = soloActiveIndexes.size ? Array.from(soloActiveIndexes.values()).slice(-1)[0] : null;
   refreshSoloKeyActiveClasses();
 }
@@ -6030,8 +6704,10 @@ function buildMixer() {
 function wireFader(channel, note, noteIndex, key) {
   const wrap = channel.querySelector(".fader-wrap");
   let dragging = false;
+  let suppressClick = false;
   let startY = 0;
   let startVal = 0;
+  let dragMoved = false;
   function moveTo(y) {
     const trackHeight = Math.max(40, wrap.clientHeight - 24);
     const value = Math.max(0, Math.min(1, startVal + (startY - y) / trackHeight));
@@ -6064,6 +6740,8 @@ function wireFader(channel, note, noteIndex, key) {
     event.preventDefault();
     resumeAudio();
     dragging = true;
+    suppressClick = false;
+    dragMoved = false;
     startY = event.clientY;
     startVal = channel.value;
     wrap.setPointerCapture(event.pointerId);
@@ -6071,11 +6749,30 @@ function wireFader(channel, note, noteIndex, key) {
   wrap.addEventListener("pointermove", (event) => {
     if (!dragging) return;
     event.preventDefault();
+    if (Math.abs(event.clientY - startY) > 3) dragMoved = true;
     moveTo(event.clientY);
   });
-  wrap.addEventListener("pointerup", () => { dragging = false; });
-  wrap.addEventListener("pointercancel", () => { dragging = false; });
+  wrap.addEventListener("pointerup", (event) => {
+    if (dragging) {
+      if (dragMoved) {
+        event.preventDefault();
+        suppressClick = true;
+        moveTo(event.clientY);
+      }
+      dragging = false;
+    }
+  });
+  wrap.addEventListener("pointercancel", () => {
+    dragging = false;
+    suppressClick = dragMoved;
+  });
   wrap.addEventListener("click", (event) => {
+    if (suppressClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClick = false;
+      return;
+    }
     const rect = wrap.getBoundingClientRect();
     startY = rect.bottom - 12;
     startVal = 0;
@@ -6106,7 +6803,7 @@ function buildSoloRoll() {
   }
   els.soloRoll.onpointerdown = (event) => {
     event.preventDefault();
-    if (!activeSoloPointers.has(event.pointerId) && activeSoloPointers.size >= 2) return;
+    if (!activeSoloPointers.has(event.pointerId) && activeSoloPointers.size >= soloVoiceLimit) return;
     activeSoloPointers.add(event.pointerId);
     soloPointerDown = true;
     soloPointerId = event.pointerId;
@@ -6377,18 +7074,24 @@ document.querySelectorAll("#controls input").forEach((input) => {
     } else if (input.id === "res") {
       res = value;
       updateFilter();
+    } else if (input.id === "filter-mode") {
+      filterMode = value;
+      updateFilterModeReadout();
+      updateFilter();
     } else if (input.id === "mix") {
       oscMix = value;
       const wave = currentWaveMix();
       const shape = currentWaveShape();
-      Object.values(voices).forEach((voice) => applyVoiceMorph(voice, wave, shape));
-      soloVoices.forEach((voice) => applyVoiceMorph(voice, wave, shape));
+      smoothedWaveMix = wave;
+      smoothedWaveShape = shape;
+      applyWaveMorphToActiveVoices(wave, shape);
     } else if (input.id === "wave-shape") {
       waveShapeControl = value;
       const wave = currentWaveMix();
       const shape = currentWaveShape();
-      Object.values(voices).forEach((voice) => applyVoiceMorph(voice, wave, shape));
-      soloVoices.forEach((voice) => applyVoiceMorph(voice, wave, shape));
+      smoothedWaveMix = wave;
+      smoothedWaveShape = shape;
+      applyWaveMorphToActiveVoices(wave, shape);
     } else if (input.id === "drift") {
       driftControl = value;
       setMotionCaps();
@@ -6444,6 +7147,11 @@ els.arpVolume.addEventListener("input", () => { arpVolume = Number(els.arpVolume
 els.soloVolume.addEventListener("input", () => {
   soloVolume = Number(els.soloVolume.value) || 0;
   if (audio) soloVoices.forEach((voice) => voice.amp.gain.setTargetAtTime(getGain(0.75) * soloVolume, audio.currentTime, 0.035));
+});
+if (els.soloVoiceLimit) els.soloVoiceLimit.addEventListener("change", () => {
+  soloVoiceLimit = Math.max(1, Math.min(4, Number(els.soloVoiceLimit.value) || 1));
+  updateSoloVoiceLimitControl();
+  enforceSoloVoiceLimit();
 });
 if (els.transposeDown) els.transposeDown.addEventListener("click", () => setTransposeSemitones(transposeSemitones - 1));
 if (els.transposeUp) els.transposeUp.addEventListener("click", () => setTransposeSemitones(transposeSemitones + 1));
@@ -6602,6 +7310,9 @@ els.softReleaseTime.addEventListener("input", () => {
   updateSoftReleaseReadout();
 });
 els.softRelease.addEventListener("click", softRelease);
+els.tapeRec?.addEventListener("click", startTapeRecording);
+els.tapeStop?.addEventListener("click", stopTapeRecording);
+els.tapeDownload?.addEventListener("click", saveTapeWav);
 
 setTheme(currentLimit);
 buildTuningSelect();
@@ -6615,9 +7326,12 @@ updateArpReadout();
 updateDelayDivisionReadout();
 updateMainVolume();
 updateEchoRouting();
+updateSoloVoiceLimitControl();
+updateFilterModeReadout();
 updateAdventureRateReadout();
 updateSoftReleaseReadout();
 updateFilterSeqReadouts();
+updateTapeRecorderUi();
 buildModMatrix();
 setupModVisualHoldGuards();
 setMotionCaps();
