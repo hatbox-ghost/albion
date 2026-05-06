@@ -762,16 +762,15 @@ body.filter-seq-editing #mixer {
 }
 
 .tape-recorder {
-  display: grid;
-  grid-template-columns: 42px 42px 92px;
+  display: flex;
   align-items: stretch;
-  gap: 1px;
-  flex: 0 0 178px;
+  flex: 0 0 58px;
   border-right: 1px solid #181818;
-  background: #111;
+  background: #08080a;
 }
 
 .tape-recorder button {
+  width: 100%;
   min-width: 0;
   border: 0;
   background: #08080a;
@@ -782,19 +781,10 @@ body.filter-seq-editing #mixer {
   text-transform: uppercase;
 }
 
-.tape-recorder button:disabled {
-  color: #333;
-  cursor: default;
-}
-
 #tape-rec.active {
   background: #1b0d0d;
   color: #ff816f;
   box-shadow: inset 0 -2px 0 #ff816f, 0 0 10px rgba(255, 92, 74, 0.18);
-}
-
-#tape-download.ready {
-  color: var(--accent);
 }
 
 .release-main-volume {
@@ -3399,7 +3389,7 @@ body.mod-view #toggle-bar #solo-hold {
       <div class="solo-status"><div id="solo-note-readout" class="solo-title">-</div><div id="delay-value-readout" class="solo-values">wet 32 · lag 42 · div 1/4 · fb 34 · slip 0</div></div>
       <div id="solo-roll" class="solo-roll" aria-label="Solo strip"></div>
     </div>
-    <div id="release-bank"><label class="release-main-volume"><span>Main Vol</span><input type="range" id="main-volume" min="0" max="1" step="0.001" value="0.55"><b id="main-volume-readout">55</b></label><div id="tape-recorder" class="tape-recorder" aria-label="Tape WAV export"><button id="tape-rec" type="button">REC</button><button id="tape-stop" type="button" disabled>STOP</button><button id="tape-download" type="button" disabled>Save WAV</button></div><button id="hard-release" class="release-btn" type="button">Hard Release</button><button id="soft-release" class="release-btn" type="button">Soft Release</button></div>
+    <div id="release-bank"><label class="release-main-volume"><span>Main Vol</span><input type="range" id="main-volume" min="0" max="1" step="0.001" value="0.55"><b id="main-volume-readout">55</b></label><div id="tape-recorder" class="tape-recorder" aria-label="Tape WAV export"><button id="tape-rec" type="button" aria-pressed="false">REC</button></div><button id="hard-release" class="release-btn" type="button">Hard Release</button><button id="soft-release" class="release-btn" type="button">Soft Release</button></div>
 
 
 
@@ -4479,8 +4469,6 @@ const els = {
   mainVolume: document.querySelector("#main-volume"),
   mainVolumeReadout: document.querySelector("#main-volume-readout"),
   tapeRec: document.querySelector("#tape-rec"),
-  tapeStop: document.querySelector("#tape-stop"),
-  tapeDownload: document.querySelector("#tape-download"),
   droneEchoToggle: document.querySelector("#drone-echo-toggle"),
   arpEchoToggle: document.querySelector("#arp-echo-toggle"),
   soloEchoToggle: document.querySelector("#solo-echo-toggle"),
@@ -4909,12 +4897,10 @@ function connectTapeRecorderTap() {
 }
 
 function updateTapeRecorderUi() {
-  if (!els.tapeRec || !els.tapeStop || !els.tapeDownload) return;
+  if (!els.tapeRec) return;
   els.tapeRec.classList.toggle("active", tapeRecorderState.isRecording);
-  els.tapeRec.disabled = tapeRecorderState.isRecording;
-  els.tapeStop.disabled = !tapeRecorderState.isRecording;
-  els.tapeDownload.disabled = tapeRecorderState.isRecording || !tapeRecorderState.lastBlob;
-  els.tapeDownload.classList.toggle("ready", Boolean(tapeRecorderState.lastBlob) && !tapeRecorderState.isRecording);
+  els.tapeRec.setAttribute("aria-pressed", String(tapeRecorderState.isRecording));
+  els.tapeRec.textContent = tapeRecorderState.isRecording ? "STOP" : "REC";
 }
 
 function handleTapeRecorderMessage(event) {
@@ -4931,9 +4917,9 @@ function tapeTimestamp(date = new Date()) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
 }
 
-function encodeTapeWav(chunks, sampleRate) {
+function encodeTapeWav24(chunks, sampleRate) {
   const totalFrames = chunks.reduce((sum, chunk) => sum + chunk.left.length, 0);
-  const bytesPerSample = 2;
+  const bytesPerSample = 3;
   const channels = 2;
   const dataBytes = totalFrames * channels * bytesPerSample;
   const buffer = new ArrayBuffer(44 + dataBytes);
@@ -4953,20 +4939,108 @@ function encodeTapeWav(chunks, sampleRate) {
   view.setUint32(offset, sampleRate, true); offset += 4;
   view.setUint32(offset, sampleRate * channels * bytesPerSample, true); offset += 4;
   view.setUint16(offset, channels * bytesPerSample, true); offset += 2;
-  view.setUint16(offset, 16, true); offset += 2;
+  view.setUint16(offset, 24, true); offset += 2;
   writeString("data");
   view.setUint32(offset, dataBytes, true); offset += 4;
 
+  const writeInt24 = (sample) => {
+    const clipped = Math.max(-1, Math.min(1, sample || 0));
+    let value = clipped < 0 ? Math.round(clipped * 0x800000) : Math.round(clipped * 0x7fffff);
+    if (value < 0) value += 0x1000000;
+    view.setUint8(offset, value & 0xff);
+    view.setUint8(offset + 1, (value >> 8) & 0xff);
+    view.setUint8(offset + 2, (value >> 16) & 0xff);
+    offset += 3;
+  };
+
   chunks.forEach((chunk) => {
     for (let i = 0; i < chunk.left.length; i += 1) {
-      const left = Math.max(-1, Math.min(1, chunk.left[i] || 0));
-      const right = Math.max(-1, Math.min(1, chunk.right[i] || 0));
-      view.setInt16(offset, left < 0 ? left * 0x8000 : left * 0x7fff, true); offset += 2;
-      view.setInt16(offset, right < 0 ? right * 0x8000 : right * 0x7fff, true); offset += 2;
+      writeInt24(chunk.left[i]);
+      writeInt24(chunk.right[i]);
     }
   });
 
   return new Blob([buffer], { type: "audio/wav" });
+}
+
+function encodeTapeWavInWorker(chunks, sampleRate) {
+  if (!window.Worker || !window.URL || !window.Blob) {
+    return Promise.resolve(encodeTapeWav24(chunks, sampleRate));
+  }
+
+  const workerCode = `
+    function encodeTapeWav24(chunks, sampleRate) {
+      const totalFrames = chunks.reduce((sum, chunk) => sum + chunk.left.length, 0);
+      const bytesPerSample = 3;
+      const channels = 2;
+      const dataBytes = totalFrames * channels * bytesPerSample;
+      const buffer = new ArrayBuffer(44 + dataBytes);
+      const view = new DataView(buffer);
+      let offset = 0;
+      const writeString = (text) => {
+        for (let i = 0; i < text.length; i += 1) view.setUint8(offset + i, text.charCodeAt(i));
+        offset += text.length;
+      };
+      writeString("RIFF");
+      view.setUint32(offset, 36 + dataBytes, true); offset += 4;
+      writeString("WAVE");
+      writeString("fmt ");
+      view.setUint32(offset, 16, true); offset += 4;
+      view.setUint16(offset, 1, true); offset += 2;
+      view.setUint16(offset, channels, true); offset += 2;
+      view.setUint32(offset, sampleRate, true); offset += 4;
+      view.setUint32(offset, sampleRate * channels * bytesPerSample, true); offset += 4;
+      view.setUint16(offset, channels * bytesPerSample, true); offset += 2;
+      view.setUint16(offset, 24, true); offset += 2;
+      writeString("data");
+      view.setUint32(offset, dataBytes, true); offset += 4;
+      const writeInt24 = (sample) => {
+        const clipped = Math.max(-1, Math.min(1, sample || 0));
+        let value = clipped < 0 ? Math.round(clipped * 0x800000) : Math.round(clipped * 0x7fffff);
+        if (value < 0) value += 0x1000000;
+        view.setUint8(offset, value & 0xff);
+        view.setUint8(offset + 1, (value >> 8) & 0xff);
+        view.setUint8(offset + 2, (value >> 16) & 0xff);
+        offset += 3;
+      };
+      chunks.forEach((chunk) => {
+        for (let i = 0; i < chunk.left.length; i += 1) {
+          writeInt24(chunk.left[i]);
+          writeInt24(chunk.right[i]);
+        }
+      });
+      return new Blob([buffer], { type: "audio/wav" });
+    }
+
+    self.onmessage = (event) => {
+      const data = event.data || {};
+      const blob = encodeTapeWav24(data.chunks || [], data.sampleRate || 48000);
+      self.postMessage({ blob });
+    };
+  `;
+
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(new Blob([workerCode], { type: "application/javascript" }));
+    const worker = new Worker(url);
+    worker.onmessage = (event) => {
+      URL.revokeObjectURL(url);
+      worker.terminate();
+      resolve(event.data.blob);
+    };
+    worker.onerror = (event) => {
+      URL.revokeObjectURL(url);
+      worker.terminate();
+      reject(event.error || new Error(event.message || "WAV worker failed"));
+    };
+    const transfer = [];
+    chunks.forEach((chunk) => {
+      transfer.push(chunk.left.buffer, chunk.right.buffer);
+    });
+    worker.postMessage({ chunks, sampleRate }, transfer);
+  }).catch((err) => {
+    console.warn("WAV worker failed; encoding on main thread.", err);
+    return encodeTapeWav24(chunks, sampleRate);
+  });
 }
 
 function triggerTapeDownload() {
@@ -5041,16 +5115,25 @@ function stopTapeRecording() {
   updateTapeRecorderUi();
 }
 
-function finishTapeRecording() {
+function toggleTapeRecording() {
+  if (tapeRecorderState.isRecording) {
+    stopTapeRecording();
+  } else {
+    startTapeRecording();
+  }
+}
+
+async function finishTapeRecording() {
   const recordedFrames = tapeRecorderState.chunks.reduce((sum, chunk) => sum + chunk.left.length, 0);
   if (!recordedFrames) {
     tapeRecorderState.lastBlob = null;
     updateTapeRecorderUi();
     return;
   }
-  tapeRecorderState.lastBlob = encodeTapeWav(tapeRecorderState.chunks, tapeRecorderState.sampleRate);
-  tapeRecorderState.lastFilename = `albion ${tapeTimestamp()}.wav`;
+  const chunks = tapeRecorderState.chunks;
   tapeRecorderState.chunks = [];
+  tapeRecorderState.lastBlob = await encodeTapeWavInWorker(chunks, tapeRecorderState.sampleRate);
+  tapeRecorderState.lastFilename = `albion ${tapeTimestamp()}.wav`;
   updateTapeRecorderUi();
   triggerTapeDownload();
 }
@@ -7230,6 +7313,7 @@ els.tapTempo.addEventListener("click", () => {
   const now = performance.now();
   tapTimes = tapTimes.filter((time) => now - time < 2400);
   tapTimes.push(now);
+  tapTimes = tapTimes.slice(-8);
   if (tapTimes.length >= 2) {
     const intervals = tapTimes.slice(1).map((time, index) => time - tapTimes[index]);
     const avg = intervals.reduce((sum, ms) => sum + ms, 0) / intervals.length;
@@ -7292,10 +7376,17 @@ document.addEventListener("pointerup", () => {
   }
 }, { passive: true });
 
-window.addEventListener("resize", () => {
-  document.querySelectorAll(".channel").forEach((channel) => setFaderPos(channel, channel.value || 0));
-  buildSoloRoll();
-});
+let resizeRefreshTimer = null;
+function scheduleResizeRefresh() {
+  if (resizeRefreshTimer) clearTimeout(resizeRefreshTimer);
+  resizeRefreshTimer = setTimeout(() => {
+    resizeRefreshTimer = null;
+    document.querySelectorAll(".channel").forEach((channel) => setFaderPos(channel, channel.value || 0));
+    buildSoloRoll();
+  }, 150);
+}
+window.addEventListener("resize", scheduleResizeRefresh);
+window.addEventListener("orientationchange", scheduleResizeRefresh);
 
 els.soloHold.addEventListener("click", () => {
   soloHold = !soloHold;
@@ -7310,9 +7401,7 @@ els.softReleaseTime.addEventListener("input", () => {
   updateSoftReleaseReadout();
 });
 els.softRelease.addEventListener("click", softRelease);
-els.tapeRec?.addEventListener("click", startTapeRecording);
-els.tapeStop?.addEventListener("click", stopTapeRecording);
-els.tapeDownload?.addEventListener("click", saveTapeWav);
+els.tapeRec?.addEventListener("click", toggleTapeRecording);
 
 setTheme(currentLimit);
 buildTuningSelect();
